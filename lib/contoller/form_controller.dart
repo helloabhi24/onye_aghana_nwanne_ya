@@ -8,6 +8,7 @@ import 'package:onye_aghana_nwanne_ya/contoller/network_connectivity.dart';
 import 'package:onye_aghana_nwanne_ya/contoller/shared_prefrence_controller.dart';
 import 'package:onye_aghana_nwanne_ya/model/form_data_model.dart';
 import 'package:onye_aghana_nwanne_ya/model/form_model.dart';
+import 'package:onye_aghana_nwanne_ya/model/local_data_model.dart';
 import 'package:onye_aghana_nwanne_ya/utils/toast.dart';
 import 'package:onye_aghana_nwanne_ya/view/dashboard/dashboard_page.dart';
 import 'package:onye_aghana_nwanne_ya/view/home_page.dart';
@@ -18,6 +19,8 @@ class FormController extends GetxController {
   ApiRepo apiRepo = ApiRepo();
   RxList<FormModel> formsList = <FormModel>[].obs;
   RxList<FormDataModel> formsDataList = <FormDataModel>[].obs;
+
+  RxList<LocalDataModel> localDataList = <LocalDataModel>[].obs;
 
   RxList<FormDataModel> filterFormList = <FormDataModel>[].obs;
   RxBool isLoading = false.obs;
@@ -74,6 +77,15 @@ class FormController extends GetxController {
       await apiRepo.forms(data).then((value) async {
         if (value["status"] == true) {
           print('list 1');
+
+          try {
+            if (value["data"].length == 0) {
+              customToast("No Forms Alloted");
+            }
+          } catch (e) {
+            print(e);
+          }
+
           formsList.value = (value["data"] as List)
               .map(
                 (e) => FormModel.fromJson(e),
@@ -98,6 +110,7 @@ class FormController extends GetxController {
           }
           print("this is pip libe");
           print((formsList[0].formData[1].value.split("|")).first.runtimeType);
+          emptyOnlineList();
           // print(value["data"]);
           // print("");
           // print(value["data"][0]["form_data"]);
@@ -196,6 +209,32 @@ class FormController extends GetxController {
     print(storedApiResponses);
     print("this is length of local");
     print(storedApiResponses.length);
+    print(storedApiResponses.isEmpty);
+  }
+
+  Future<void> loadStoredData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedData = prefs.getString('local_data');
+    print(storedData!.length);
+    if (storedData != null) {
+      final data = json.decode(storedData);
+
+      localDataList.value = (data as List<dynamic>).map((item) {
+        return LocalDataModel.fromJson(item); // Use the JSON constructor
+      }).toList();
+    }
+  }
+
+  Future<void> storeDataLocally(
+      Map<dynamic, dynamic> data, bool shouldDeleteAfterUpload) async {
+    final localDataModel = LocalDataModel(
+        data: data, shouldDeleteAfterUpload: shouldDeleteAfterUpload);
+    localDataList.add(localDataModel);
+
+    final prefs = await SharedPreferences.getInstance();
+    final encodedData =
+        json.encode(localDataList.map((item) => item.toJson()).toList());
+    await prefs.setString('local_data', encodedData);
   }
 
   void addData(String question, dynamic value) {
@@ -233,6 +272,7 @@ class FormController extends GetxController {
       await forms(sharedPref.userID.value, true);
     }
     emptyOnlineList();
+    loadStoredData();
     isLoading.value = false;
   }
 

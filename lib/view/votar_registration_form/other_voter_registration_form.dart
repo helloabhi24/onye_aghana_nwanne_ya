@@ -38,7 +38,17 @@ class _OtherVoterRegistrationFormState
       });
     }
 
-    var vari = formController.formsList[formController.index.value].formData;
+    var vari;
+    var variLocal;
+
+    if (formController.formsList.isNotEmpty) {
+      vari = formController.formsList[formController.index.value].formData;
+    }
+    if (formController.storedApiResponses.isNotEmpty) {
+      variLocal = formController.storedApiResponses[formController.index.value]
+          ["form_data"];
+    }
+
     return Scaffold(
       // resizeToAvoidBottomInset: false,
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
@@ -107,120 +117,260 @@ class _OtherVoterRegistrationFormState
                     //               valueList: i.value.split("|"),
                     //               dropValue: 'one')
                     //           : const SizedBox.shrink(),
-                    SizedBox(
-                      // height: Get.height * (vari.length / 7.3),
-                      height: Get.height * 0.595,
-                      child: ListView.builder(
-                          physics: BouncingScrollPhysics(),
-                          itemCount: vari.length,
-                          itemBuilder: (context, index) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    CustomText(text: vari[index].question),
-                                    vari[index].mandatory == "1"
-                                        ? RichText(
-                                            text: const TextSpan(
-                                                text: ' *',
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontSize: 15.0,
-                                                  fontWeight: FontWeight.bold,
-                                                )))
-                                        : const SizedBox.shrink()
-                                  ],
-                                ),
-                                getheight(context, 0.010),
-                                vari[index].questionType == "1"
-                                    ? CustomTextFormField(
-                                        onChanged: (p0) {
-                                          formController.addData(
-                                              vari[index].question, p0);
-                                        },
-                                      )
-                                    : SizedBox.shrink(),
-                                vari[index].questionType == "2"
-                                    ? CustomTextFormFieldAddress(
-                                        onChanged: (p0) {
-                                          formController.addData(
-                                              vari[index].question, p0);
-                                        },
-                                      )
-                                    : SizedBox.shrink(),
-                                vari[index].questionType == "3"
-                                    ? DropDownWidget(
-                                        valueList: vari[index].value.split("|"),
-                                        dropValue:
-                                            (vari[index].value.split("|"))
-                                                .first,
-                                        valueOnText: vari[index].question,
-                                      )
-                                    : SizedBox.shrink(),
-                                vari[index].questionType == "4"
-                                    ? MultiSelectValue(
-                                        listValue: vari[index].value.split("|"),
-                                        // selectedList: formController.multi,
-                                        questionValue: vari[index].question,
-                                      )
-                                    //  DropDownWidget(
-                                    //     valueList: vari[index].value.split("|"),
-                                    //     dropValue:
-                                    //         (vari[index].value.split("|"))
-                                    //             .first,
-                                    //     valueOnText: vari[index].question)
-                                    : SizedBox.shrink(),
-                                vari[index].questionType == "5"
-                                    ? NoParameterImageWidget(
-                                        questionName: vari[index].question,
-                                      )
-                                    // WithOutImageWidget(
-                                    //     onChangedCamera: () =>
-                                    //         signUpController.getImageforSignUp(
-                                    //             ImageSource.camera),
-                                    //     onChangedGallery: () =>
-                                    //         signUpController.getImageforSignUp(
-                                    //             ImageSource.gallery),
-                                    //   )
-                                    : SizedBox.shrink(),
-                                vari[index].questionType == "6"
-                                    ? CustomDatePicker(
-                                        // selectedDate: selectedDate,
-                                        onDateChanged: handleDateChanged,
-                                        questionValue: vari[index].question,
-                                      )
-                                    // ? CustomTextFormField(
-                                    //     onTap: () async {
-                                    //       FocusManager.instance.primaryFocus
-                                    //           ?.unfocus();
-                                    //       DateTime? newDate =
-                                    //           await showDatePicker(
-                                    //               context: context,
-                                    //               helpText: "DATE OF BIRTH",
-                                    //               initialDate:
-                                    //                   formController.date.value,
-                                    //               firstDate: DateTime(1990),
-                                    //               lastDate: DateTime(2222));
-                                    //       if (newDate == null) return;
-                                    //       formController.date.value = newDate;
-                                    //       formController.dobController.text =
-                                    //           DateFormat('dd/MM/yyyy')
-                                    //               .format(newDate);
-                                    //       FocusManager.instance.primaryFocus
-                                    //           ?.unfocus();
-                                    //     },
-                                    //     controller:
-                                    //         formController.dobController,
-                                    //     textInputType: TextInputType.datetime,
-                                    //     // labelText: "Date of Birth",
-                                    //   )
-                                    : SizedBox.shrink(),
-                                getheight(context, 0.010)
-                              ],
-                            );
-                          }),
-                    ),
+                    formController.formsList.isNotEmpty
+                        ? SizedBox(
+                            // height: Get.height * (vari.length / 7.3),
+                            height: Get.height * 0.595,
+                            child: ListView.builder(
+                                physics: BouncingScrollPhysics(),
+                                itemCount: vari.length,
+                                itemBuilder: (context, index) {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          CustomText(
+                                              text: vari[index].question),
+                                          vari[index].mandatory == "1"
+                                              ? RichText(
+                                                  text: const TextSpan(
+                                                      text: ' *',
+                                                      style: TextStyle(
+                                                        color: Colors.red,
+                                                        fontSize: 15.0,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      )))
+                                              : const SizedBox.shrink()
+                                        ],
+                                      ),
+                                      getheight(context, 0.010),
+                                      vari[index].questionType == "1"
+                                          ? CustomTextFormField(
+                                              onChanged: (p0) {
+                                                formController.addData(
+                                                    vari[index].question, p0);
+                                              },
+                                            )
+                                          : SizedBox.shrink(),
+                                      vari[index].questionType == "2"
+                                          ? CustomTextFormFieldAddress(
+                                              onChanged: (p0) {
+                                                formController.addData(
+                                                    vari[index].question, p0);
+                                              },
+                                            )
+                                          : SizedBox.shrink(),
+                                      vari[index].questionType == "3"
+                                          ? DropDownWidget(
+                                              valueList:
+                                                  vari[index].value.split("|"),
+                                              dropValue:
+                                                  (vari[index].value.split("|"))
+                                                      .first,
+                                              valueOnText: vari[index].question,
+                                            )
+                                          : SizedBox.shrink(),
+                                      vari[index].questionType == "4"
+                                          ? MultiSelectValue(
+                                              listValue:
+                                                  vari[index].value.split("|"),
+                                              // selectedList: formController.multi,
+                                              questionValue:
+                                                  vari[index].question,
+                                            )
+                                          //  DropDownWidget(
+                                          //     valueList: vari[index].value.split("|"),
+                                          //     dropValue:
+                                          //         (vari[index].value.split("|"))
+                                          //             .first,
+                                          //     valueOnText: vari[index].question)
+                                          : SizedBox.shrink(),
+                                      vari[index].questionType == "5"
+                                          ? NoParameterImageWidget(
+                                              questionName:
+                                                  vari[index].question,
+                                            )
+                                          // WithOutImageWidget(
+                                          //     onChangedCamera: () =>
+                                          //         signUpController.getImageforSignUp(
+                                          //             ImageSource.camera),
+                                          //     onChangedGallery: () =>
+                                          //         signUpController.getImageforSignUp(
+                                          //             ImageSource.gallery),
+                                          //   )
+                                          : SizedBox.shrink(),
+                                      vari[index].questionType == "6"
+                                          ? CustomDatePicker(
+                                              // selectedDate: selectedDate,
+                                              onDateChanged: handleDateChanged,
+                                              questionValue:
+                                                  vari[index].question,
+                                            )
+                                          // ? CustomTextFormField(
+                                          //     onTap: () async {
+                                          //       FocusManager.instance.primaryFocus
+                                          //           ?.unfocus();
+                                          //       DateTime? newDate =
+                                          //           await showDatePicker(
+                                          //               context: context,
+                                          //               helpText: "DATE OF BIRTH",
+                                          //               initialDate:
+                                          //                   formController.date.value,
+                                          //               firstDate: DateTime(1990),
+                                          //               lastDate: DateTime(2222));
+                                          //       if (newDate == null) return;
+                                          //       formController.date.value = newDate;
+                                          //       formController.dobController.text =
+                                          //           DateFormat('dd/MM/yyyy')
+                                          //               .format(newDate);
+                                          //       FocusManager.instance.primaryFocus
+                                          //           ?.unfocus();
+                                          //     },
+                                          //     controller:
+                                          //         formController.dobController,
+                                          //     textInputType: TextInputType.datetime,
+                                          //     // labelText: "Date of Birth",
+                                          //   )
+                                          : SizedBox.shrink(),
+                                      getheight(context, 0.010)
+                                    ],
+                                  );
+                                }),
+                          )
+                        : SizedBox(
+                            // height: Get.height * (vari.length / 7.3),
+                            height: Get.height * 0.595,
+                            child: ListView.builder(
+                                physics: BouncingScrollPhysics(),
+                                itemCount: variLocal.length,
+                                itemBuilder: (context, index) {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          CustomText(
+                                              text: variLocal[index]
+                                                  ["question"]),
+                                          variLocal[index]["mandatory"] == "1"
+                                              ? RichText(
+                                                  text: const TextSpan(
+                                                      text: ' *',
+                                                      style: TextStyle(
+                                                        color: Colors.red,
+                                                        fontSize: 15.0,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      )))
+                                              : const SizedBox.shrink()
+                                        ],
+                                      ),
+                                      getheight(context, 0.010),
+                                      variLocal[index]["question_type"] == "1"
+                                          ? CustomTextFormField(
+                                              onChanged: (p0) {
+                                                formController.addData(
+                                                    variLocal[index]
+                                                        ["question"],
+                                                    p0);
+                                              },
+                                            )
+                                          : SizedBox.shrink(),
+                                      variLocal[index]["question_type"] == "2"
+                                          ? CustomTextFormFieldAddress(
+                                              onChanged: (p0) {
+                                                formController.addData(
+                                                    variLocal[index]
+                                                        ["question"],
+                                                    p0);
+                                              },
+                                            )
+                                          : SizedBox.shrink(),
+                                      variLocal[index]["question_type"] == "3"
+                                          ? DropDownWidget(
+                                              valueList: variLocal[index]
+                                                      ["_value"]
+                                                  .split("|"),
+                                              dropValue: (variLocal[index]
+                                                          ["_value"]
+                                                      .split("|"))
+                                                  .first,
+                                              valueOnText: variLocal[index]
+                                                  ["question"],
+                                            )
+                                          : SizedBox.shrink(),
+                                      variLocal[index]["question_type"] == "4"
+                                          ? MultiSelectValue(
+                                              listValue: variLocal[index]
+                                                      ["_value"]
+                                                  .split("|"),
+                                              // selectedList: formController.multi,
+                                              questionValue: variLocal[index]
+                                                  ["question"],
+                                            )
+                                          //  DropDownWidget(
+                                          //     valueList: vari[index].value.split("|"),
+                                          //     dropValue:
+                                          //         (vari[index].value.split("|"))
+                                          //             .first,
+                                          //     valueOnText: vari[index].question)
+                                          : SizedBox.shrink(),
+                                      variLocal[index]["question_type"] == "5"
+                                          ? NoParameterImageWidget(
+                                              questionName: variLocal[index]
+                                                  ["question"],
+                                            )
+                                          // WithOutImageWidget(
+                                          //     onChangedCamera: () =>
+                                          //         signUpController.getImageforSignUp(
+                                          //             ImageSource.camera),
+                                          //     onChangedGallery: () =>
+                                          //         signUpController.getImageforSignUp(
+                                          //             ImageSource.gallery),
+                                          //   )
+                                          : SizedBox.shrink(),
+                                      variLocal[index]["question_type"] == "6"
+                                          ? CustomDatePicker(
+                                              // selectedDate: selectedDate,
+                                              onDateChanged: handleDateChanged,
+                                              questionValue: variLocal[index]
+                                                  ["question"],
+                                            )
+                                          // ? CustomTextFormField(
+                                          //     onTap: () async {
+                                          //       FocusManager.instance.primaryFocus
+                                          //           ?.unfocus();
+                                          //       DateTime? newDate =
+                                          //           await showDatePicker(
+                                          //               context: context,
+                                          //               helpText: "DATE OF BIRTH",
+                                          //               initialDate:
+                                          //                   formController.date.value,
+                                          //               firstDate: DateTime(1990),
+                                          //               lastDate: DateTime(2222));
+                                          //       if (newDate == null) return;
+                                          //       formController.date.value = newDate;
+                                          //       formController.dobController.text =
+                                          //           DateFormat('dd/MM/yyyy')
+                                          //               .format(newDate);
+                                          //       FocusManager.instance.primaryFocus
+                                          //           ?.unfocus();
+                                          //     },
+                                          //     controller:
+                                          //         formController.dobController,
+                                          //     textInputType: TextInputType.datetime,
+                                          //     // labelText: "Date of Birth",
+                                          //   )
+                                          : SizedBox.shrink(),
+                                      getheight(context, 0.010)
+                                    ],
+                                  );
+                                }),
+                          ),
 
                     // getheight(context, 0.020),
                     // const CustomTextFormField(
@@ -263,15 +413,58 @@ class _OtherVoterRegistrationFormState
                                   actions: [
                                     CustomButton(
                                       text: "Save & Draft",
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        formController.storeDataLocally(
+                                            formController.allData, true);
+                                      },
                                     ),
                                     CustomButton(
                                         text: "Submit",
                                         onPressed: () {
-                                          formController.allData
-                                              .forEach((i, value) {
-                                            print('index=$i, value=$value');
+                                          formController.loadStoredData();
+                                          print("this is value of data");
+                                          print(formController
+                                              .localDataList.length);
+                                          // Accessing and using the localDataList
+                                          formController.localDataList
+                                              .forEach((localDataModel) {
+                                            final data = localDataModel.data;
+                                            final shouldDeleteAfterUpload =
+                                                localDataModel
+                                                    .shouldDeleteAfterUpload;
+
+                                            // Now, you can work with 'data' and 'shouldDeleteAfterUpload' as needed
+                                            print('Data: $data');
+                                            print(
+                                                'Should Delete: $shouldDeleteAfterUpload');
                                           });
+
+// You can also access specific items in the list by index if needed
+                                          if (formController
+                                              .localDataList.isNotEmpty) {
+                                            final firstItem =
+                                                formController.localDataList[0];
+                                            final dataOfFirstItem =
+                                                firstItem.data;
+                                            final shouldDeleteOfFirstItem =
+                                                firstItem
+                                                    .shouldDeleteAfterUpload;
+                                            print("data of local storage");
+                                            print(dataOfFirstItem);
+                                            print(shouldDeleteOfFirstItem);
+
+                                            // Now, you can work with the first item's 'data' and 'shouldDeleteAfterUpload' as needed
+                                          }
+
+                                          // print("before clear the data");
+                                          // print(formController.allData);
+                                          // print("after clear the data");
+                                          // formController.allData.clear();
+                                          // print(formController.allData);
+                                          // formController.allData
+                                          //     .forEach((i, value) {
+                                          //   print('index=$i, value=$value');
+                                          // });
                                         })
                                   ]);
                             }),
