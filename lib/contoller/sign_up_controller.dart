@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -10,11 +9,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:onye_aghana_nwanne_ya/contoller/form_controller.dart';
 import 'package:onye_aghana_nwanne_ya/contoller/shared_prefrence_controller.dart';
 import 'package:onye_aghana_nwanne_ya/model/form_model.dart';
+import 'package:onye_aghana_nwanne_ya/services/local_database_helper.dart';
 import 'package:onye_aghana_nwanne_ya/utils/toast.dart';
 import 'package:onye_aghana_nwanne_ya/view/dashboard/dashboard_page.dart';
-import 'package:onye_aghana_nwanne_ya/view/home_page.dart';
 import 'package:onye_aghana_nwanne_ya/view/login/sign_in_page.dart';
-
 import '../api_repo/api_repo_fun.dart';
 import '../view/login/verification_page.dart';
 import '../view/profile/profile_page.dart';
@@ -56,11 +54,15 @@ class SignUpController extends GetxController {
   RxBool isInsuranceSubmit = false.obs;
 
   RxBool isLoading = false.obs;
+  RxBool isResendOtp = false.obs;
 
   RxBool isPwdShow = true.obs;
   RxBool isPwdShowLogin = true.obs;
   RxBool isPwdShowConfirm = true.obs;
   RxBool isPwdShowConfirmAgain = true.obs;
+
+  RxBool isChecked = false.obs;
+  RxBool isSign = true.obs;
 
   RxString userID = "".obs;
   RxString firstName = "".obs;
@@ -72,6 +74,10 @@ class SignUpController extends GetxController {
   RxInt start = 15.obs;
   RxString tempUserID = "".obs;
 
+  RxString firstNameProfile = "".obs;
+  RxString surNameProfile = "".obs;
+  RxString telephoneProfile = "".obs;
+
   var pollutionExpireDate = DateTime.now().obs;
   var insExpireDate = DateTime.now().obs;
 
@@ -79,44 +85,41 @@ class SignUpController extends GetxController {
   RxString base64stringforSignUp = "".obs;
   RxList imageListforSignUp = [].obs;
 
-  var selectedImagePathForOtherProof = "".obs;
-  RxString base64stringForOtherProof = "".obs;
-  RxList imageListForOtherProof = [].obs;
+  var selectedImagePathForProfile = "".obs;
+  RxString base64stringForProfile = "".obs;
+  RxList imageListForProfile = [].obs;
 
   Future checkValidationOnSignUp() async {
     isLoading.value = true;
     final Map<String, dynamic> data = <String, dynamic>{};
-    // data["driver_id"] = 01;
     data["first_name"] = firstNameController.text;
     data["sur_name"] = surNameController.text;
     data["telephone"] = telephoneNumberController.text;
-    // data["photo"] = imageListforSignUp.toString();
     data["photo"] = base64stringforSignUp.value;
-
     data["special_password"] = specialPasswordController.text;
 
-    print("this is value of clothing");
-    print(data);
     try {
       await apiRepo.checkValidation(data).then((value) async {
         if (value["status"] == true) {
-          // await resendOtp();
           Get.to(() => const VerificationPage(),
               transition: Transition.circularReveal,
               arguments: telephoneNumberController.text);
           otpMsg.value = value["message"].toString();
-
-          // customToast(
-          //     "You Successfully Submitted All Information, Please Contact Admin for Password");
-          // Get.offAll(
-          //   SignInWidget(),
-          // );
         } else {
-          customToast(value["message"]);
+          // customToast(value["message"]);
+          print("this is value dgd");
+          try {
+            customToast(value["message"]);
+          } catch (e) {
+            (e);
+          }
+          customToast(value["message"]['telephone'][0]);
+          print("this is value");
+          print(value["message"]['telephone'][0]);
         }
       });
     } catch (e) {
-      // print(e);
+      (e);
     }
     isLoading.value = false;
   }
@@ -136,30 +139,48 @@ class SignUpController extends GetxController {
   }
 
   Future resendOtp() async {
-    isLoading.value = true;
+    isResendOtp.value = true;
     final Map<String, dynamic> data = <String, dynamic>{};
 
     data["telephone"] = telephoneNumberController.text;
 
+    print("data");
+    print(data);
     try {
       await apiRepo.resendOtp(data).then((value) async {
         if (value["status"] == true) {
           customToast("OTP send successfully");
-          // Get.to(() => const VerificationPage(),
-          //     transition: Transition.circularReveal);
-          // customToast(
-          //     "You Successfully Submitted All Information, Please Contact Admin for Password");
-          // Get.offAll(
-          //   SignInWidget(),
-          // );
+          otpMsg.value = value["message"].toString();
         } else {
           customToast(value["message"]);
         }
       });
     } catch (e) {
-      // print(e);
+      (e);
     }
-    isLoading.value = false;
+    isResendOtp.value = false;
+  }
+
+  Future forgetOtp() async {
+    isResendOtp.value = true;
+    final Map<String, dynamic> data = <String, dynamic>{};
+
+    data["telephone"] = forgetPasswordController.text;
+    print("data");
+    print(data);
+    try {
+      await apiRepo.forgetOtp(data).then((value) async {
+        if (value["status"] == true) {
+          customToast("OTP send successfully");
+          otpMsg.value = value["message"].toString();
+        } else {
+          customToast(value["message"]);
+        }
+      });
+    } catch (e) {
+      (e);
+    }
+    isResendOtp.value = false;
   }
 
   Future userResetPassword(bool isForget) async {
@@ -179,22 +200,12 @@ class SignUpController extends GetxController {
               arguments: forgetPasswordController.text);
           otpMsg.value = value["message"].toString();
           tempUserID.value = value["data"]["id"].toString();
-          // sharedPref.setTempUserId(value["data"]["id"].toString());
-          // sharedPref.setUserImage(value["data"]['photo']).toString();
-
-          // Get.to(() => const VerificationPage(),
-          //     transition: Transition.circularReveal);
-          // customToast(
-          //     "You Successfully Submitted All Information, Please Contact Admin for Password");
-          // Get.offAll(
-          //   SignInWidget(),
-          // );
         } else {
           customToast(value["message"]);
         }
       });
     } catch (e) {
-      // print(e);
+      (e);
     }
     isLoading.value = false;
   }
@@ -215,92 +226,32 @@ class SignUpController extends GetxController {
           // customToast("OTP send successfully");
           customToast(value["message"]);
           Get.offAll(() => const SingInPage());
-          // await formController.forms(value["data"]["id"].toString(), true);
-          // await forms(value["data"]["id"].toString(), false);
-          // sharedPref.setUserId(value["data"]["id"].toString());
-          // sharedPref.setUserImage(value["data"]['photo']).toString();
-          // firstName.value = value["data"]['first_name'].toString();
-          // surName.value = value["data"]['sur_name'].toString();
-          // customToast(
-          //     "You Successfully Submitted All Information, Please Contact Admin for Password");
-          // Get.offAll(
-          //   SignInWidget(),
-          // );
         } else {
           customToast(value["message"]);
         }
       });
     } catch (e) {
-      // print(e);
+      (e);
     }
     isLoading.value = false;
   }
 
-  // Future forms(String id, bool isLogin) async {
-  //   isLoading.value = true;
-  //   final Map<String, dynamic> data = <String, dynamic>{};
-
-  //   data["id"] = id.isNotEmpty ? id : sharedPref.userID.value;
-  //   print("this is data of id");
-  //   print(data);
-  //   try {
-  //     await apiRepo.forms(data).then((value) async {
-  //       if (value["status"] == true) {
-  //         formsList.value = (value["data"] as List)
-  //             .map(
-  //               (e) => FormModel.fromJson(e),
-  //             )
-  //             .toList();
-  //         print("dashBoard called");
-  //         if (isLogin) {
-  //           Get.off(() => const DashboardPage());
-  //         } else {
-  //           Get.offAll(() => const HomePage(),
-  //               transition: Transition.circularReveal);
-  //         }
-
-  //         print("length of form list");
-  //         print(formsList.length);
-  //         // Get.to(() => const VerificationPage(),
-  //         //     transition: Transition.circularReveal);
-  //         // customToast(
-  //         //     "You Successfully Submitted All Information, Please Contact Admin for Password");
-  //         // Get.offAll(
-  //         //   SignInWidget(),
-  //         // );
-  //       } else {
-  //         customToast(value["message"]);
-  //       }
-  //     });
-  //   } catch (e) {
-  //     // print(e);
-  //   }
-  //   isLoading.value = false;
-  // }
-
   Future registrationFinal() async {
     isLoading.value = true;
     final Map<String, dynamic> data = <String, dynamic>{};
-    // data["driver_id"] = 01;
     data["first_name"] = firstNameController.text;
     data["sur_name"] = surNameController.text;
     data["telephone"] = telephoneNumberController.text;
-    // data["photo"] = imageListforSignUp.toString();
     data["photo"] = base64stringforSignUp.value;
-
     data["special_password"] = specialPasswordController.text;
     data["password"] = passwordController.text;
     data["confirm_password"] = passwordConfirmController.text;
-
-    print("this is value of clothing");
-    print(data);
-    // print(base64stringforSignUp.runtimeType);
     try {
       await apiRepo.registration(data).then((value) async {
         if (value["status"] == true) {
-          // Get.offAll(() => const HomePage());
-          await formController.forms(value["data"]["id"].toString(), false);
-          // await forms(value["data"]["id"].toString(), false);
+          await formController.forms(
+              value["data"]["id"].toString(), false, true);
+
           print("this is user name");
           print(value["data"]['first_name'].toString());
           firstName.value = value["data"]['first_name'].toString();
@@ -312,20 +263,12 @@ class SignUpController extends GetxController {
           print(firstName.value);
           sharedPref.setUserId(value["data"]["id"].toString());
           sharedPref.setUserImage(value["data"]['photo']).toString();
-
-          // Get.to(() => const VerificationPage(),
-          //     transition: Transition.circularReveal);
-          // customToast(
-          //     "You Successfully Submitted All Information, Please Contact Admin for Password");
-          // Get.offAll(
-          //   SignInWidget(),
-          // );
         } else {
           customToast(value["message"]);
         }
       });
     } catch (e) {
-      // print(e);
+      (e);
     }
     isLoading.value = false;
   }
@@ -340,34 +283,26 @@ class SignUpController extends GetxController {
     try {
       await apiRepo.login(data).then((value) async {
         if (value["status"] == true) {
-          // Get.offAll(() => const DashboardPage(),
-          // sharedPref.setUserId(value["data"]["id"].toString());
+          await formController.forms(
+              value["data"]["id"].toString(), true, false);
 
-          // sharedPref.setUserImage(value["data"]['photo']).toString();
-          //     transition: Transition.circularReveal);
-          await formController.forms(value["data"]["id"].toString(), true);
-          // await forms(value["data"]["id"].toString(), true);
-          print('This si value of something');
           userID.value = value["data"]["id"].toString();
+
           sharedPref.setUserId(value["data"]["id"].toString());
-          sharedPref.setUserImage(value["data"]['photo']).toString();
           await sharedPref.getuserId();
+          await LocalDatabaseHelper.getSubmitteddNote(sharedPref.userID.value);
+          sharedPref.setUserImage(value["data"]['photo']).toString();
           await sharedPref.getuserImage();
-          print("this is value of image ");
+          print("this is user profile");
           print(sharedPref.userImage.value);
-          // Get.offAll(() => const DashboardPage(),
-          //     transition: Transition.circularReveal);
-          // customToast(
-          //     "You Successfully Submitted All Information, Please Contact Admin for Password");
-          // Get.offAll(
-          //   SignInWidget(),
-          // );
+          loginPhoneController.clear();
+          loginPasswordController.clear();
         } else {
           customToast(value["message"]);
         }
       });
     } catch (e) {
-      // print(e);
+      (e);
     }
     isLoading.value = false;
   }
@@ -384,10 +319,9 @@ class SignUpController extends GetxController {
           Get.to(() => const ProfilePage(),
               transition: Transition.circularReveal);
 
-          // firstName.value = value["data"]["first_name"].toString();
-          // surName.value = value["data"]["sur_name"].toString();
-          // telephoneNo.value = value["data"]["telephone"].toString();
-          // userImage.value = value["data"]["photo"].toString();
+          firstNameProfile.value = value["data"]["first_name"].toString();
+          surNameProfile.value = value["data"]["sur_name"].toString();
+          telephoneProfile.value = value["data"]["telephone"].toString();
           firstNameController.text = value["data"]["first_name"].toString();
           surNameController.text = value["data"]["sur_name"].toString();
           telephoneNumberController.text =
@@ -400,7 +334,7 @@ class SignUpController extends GetxController {
         }
       });
     } catch (e) {
-      // print(e);
+      (e);
     }
     isLoading.value = false;
   }
@@ -414,26 +348,18 @@ class SignUpController extends GetxController {
     data["newpassword"] = newPasswordController.text;
     data["confirmpassword"] = newConPasswordController.text;
 
-    print("this is data of password change");
-    print(data);
-
     try {
       await apiRepo.userPasswordChange(data).then((value) async {
         if (value["status"] == true) {
           customToast("Password Changed Successfully");
           Get.offAll(() => const DashboardPage(),
               transition: Transition.circularReveal);
-          // customToast(
-          //     "You Successfully Submitted All Information, Please Contact Admin for Password");
-          // Get.offAll(
-          //   SignInWidget(),
-          // );
         } else {
           customToast(value["message"]);
         }
       });
     } catch (e) {
-      // print(e);
+      (e);
     }
     isLoading.value = false;
   }
@@ -446,27 +372,25 @@ class SignUpController extends GetxController {
     data["first_name"] = firstNameController.text;
     data["sur_name"] = surNameController.text;
     data["telephone"] = telephoneNumberController.text;
-    data["photo"] = base64stringforSignUp.value;
+    data["photo"] = base64stringForProfile.value;
     data["special_password"] = specialPasswordController.text;
-    print("this is data of updates");
-    print(data);
+
     try {
       await apiRepo.userUpdateApi(data).then((value) async {
         if (value["status"] == true) {
           customToast("Profile Update Successfully");
           Get.offAll(() => const DashboardPage(),
               transition: Transition.circularReveal);
-          // customToast(
-          //     "You Successfully Submitted All Information, Please Contact Admin for Password");
-          // Get.offAll(
-          //   SignInWidget(),
-          // );
+
+          sharedPref.setUserImage(value["data"]['photo']).toString();
+
+          await sharedPref.getuserImage();
         } else {
           customToast(value["message"]);
         }
       });
     } catch (e) {
-      // print(e);
+      (e);
     }
     isLoading.value = false;
   }
@@ -476,12 +400,8 @@ class SignUpController extends GetxController {
     if (pickeImage != null) {
       File? img = await getCroppedImage(pickeImage);
 
-      // pathName.value = pickeImage.name;
-
-      // selectedImagePath.value = await img!.path;
       selectedImagePathforSignUp.value = img!.path;
 
-      // File imagefile = File(selectedImagePath.value); //convert Path to File
       File imagefile = File(img.path); //convert Path to File
 
       Uint8List imagebytes = await imagefile.readAsBytes(); //convert to bytes
@@ -489,6 +409,23 @@ class SignUpController extends GetxController {
           "data:image/jpeg;base64,${base64.encode(imagebytes)}";
 
       imageListforSignUp.add("base64,${base64stringforSignUp.value}");
+    } else {
+      // customToast("No Image Selected");
+    }
+  }
+
+  Future getImageForProfile(ImageSource imageSource) async {
+    var pickeImage = await ImagePicker().pickImage(source: imageSource);
+    if (pickeImage != null) {
+      File? img = await getCroppedImage(pickeImage);
+
+      selectedImagePathForProfile.value = img!.path;
+
+      File imagefile = File(img.path); //convert Path to File
+
+      Uint8List imagebytes = await imagefile.readAsBytes(); //convert to bytes
+      base64stringForProfile.value =
+          "data:image/jpeg;base64,${base64.encode(imagebytes)}";
     } else {
       // customToast("No Image Selected");
     }

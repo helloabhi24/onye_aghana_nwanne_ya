@@ -15,35 +15,6 @@ class ApiStorage {
     await prefs.setString(apiResponseKey, apiResponseString);
   }
 
-  // Parsing the API response
-  // final List<Map<String, dynamic>> apiResponses =
-  //     formController.formsList; // Your API response data
-
-  // List<YourApiResponseClass> parsedResponses = apiResponses.map((apiResponse) {
-  //   final List<Map<String, dynamic>> formModelData =
-  //       apiResponse['form_data'] != null
-  //           ? List<Map<String, dynamic>>.from(apiResponse['form_data'])
-  //           : [];
-
-  //   final List<FormModel> formModels = formModelData
-  //       .map((formData) => formData['form_model'] != null
-  //           ? List<Map<String, dynamic>>.from(formData['form_model'])
-  //               .map((formModelMap) => FormModel.fromJson(formModelMap))
-  //               .toList()
-  //           : [])
-  //       .expand((element) => element)
-  //       .toList();
-
-  // Create your ApiResponseClass object and include the formModels
-  //   return YourApiResponseClass(
-  //     id: apiResponse['id'],
-  //     subAdminId: apiResponse['sub_admin_id'],
-  //     formName: apiResponse['form_name'],
-  //     // Add other fields as needed
-  //     formModels: formModels,
-  //   );
-  // }).toList();
-
   // Retrieve stored API response
   static Future<List<Map<String, dynamic>>> getStoredApiResponse() async {
     final prefs = await SharedPreferences.getInstance();

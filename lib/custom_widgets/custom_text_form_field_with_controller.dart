@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:onye_aghana_nwanne_ya/utils/colors.dart';
 
-class CustomTextFormField extends StatelessWidget {
+class CustomTextFormFieldWithController extends StatelessWidget {
+  // TextEditingController controllers = TextEditingController();
   final TextInputType? textInputType;
-  final bool? isEnable;
   final Widget? icon;
   final Color? iconColor;
   final String? labelText;
@@ -21,13 +20,13 @@ class CustomTextFormField extends StatelessWidget {
   final bool? readOnly;
   final VoidCallback? onEditingComplete;
   final String? hintText;
+  final String? initialValue;
   final void Function(PointerDownEvent)? onTapOutside;
   final void Function(String)? onChanged;
 
-  const CustomTextFormField(
+  CustomTextFormFieldWithController(
       {super.key,
       this.textInputType,
-      this.isEnable,
       this.icon,
       this.iconColor,
       this.controller,
@@ -43,7 +42,8 @@ class CustomTextFormField extends StatelessWidget {
       this.readOnly,
       this.onEditingComplete,
       this.onTapOutside,
-      this.hintText});
+      this.hintText,
+      this.initialValue});
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +51,7 @@ class CustomTextFormField extends StatelessWidget {
       width: Get.width * 0.90,
       // height: Get.height * 0.078,
       child: TextFormField(
-        enabled: isEnable,
+        initialValue: initialValue,
         onTapOutside: onTapOutside,
         onEditingComplete: onEditingComplete,
         readOnly: readOnly ?? false,
@@ -74,15 +74,14 @@ class CustomTextFormField extends StatelessWidget {
             suffixIconColor: iconColor,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
             labelText: labelText,
-            labelStyle: GoogleFonts.poppins(
-                fontSize: hintFontSize,
-                color: isEnable ?? true ? null : appColor)),
+            labelStyle: GoogleFonts.poppins(fontSize: hintFontSize)),
       ),
     );
   }
 }
 
-class CustomTextFormFieldAddress extends StatelessWidget {
+class CustomTextFormFieldAddressWithController extends StatelessWidget {
+  // TextEditingController controllers = TextEditingController();
   final TextInputType? textInputType;
   final Widget? icon;
   final Color? iconColor;
@@ -97,10 +96,12 @@ class CustomTextFormFieldAddress extends StatelessWidget {
   final String? Function(String?)? validator;
   final bool? readOnly;
   final VoidCallback? onEditingComplete;
+  final String? hintText;
+  final String? initialValue;
   final void Function(PointerDownEvent)? onTapOutside;
   final void Function(String)? onChanged;
 
-  const CustomTextFormFieldAddress(
+  CustomTextFormFieldAddressWithController(
       {super.key,
       this.textInputType,
       this.icon,
@@ -117,13 +118,17 @@ class CustomTextFormFieldAddress extends StatelessWidget {
       this.validator,
       this.readOnly,
       this.onEditingComplete,
-      this.onTapOutside});
+      this.onTapOutside,
+      this.hintText,
+      this.initialValue});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: Get.width * 0.90,
+      // height: Get.height * 0.078,
       child: TextFormField(
+        initialValue: initialValue,
         minLines: 2,
         maxLines: null,
         onTapOutside: onTapOutside,
@@ -139,15 +144,16 @@ class CustomTextFormFieldAddress extends StatelessWidget {
         onChanged: onChanged,
         controller: controller,
         textAlignVertical: TextAlignVertical.top,
-        keyboardType: TextInputType.multiline,
+        keyboardType: textInputType,
         decoration: InputDecoration(
             // error: Text('g'),
+            hintText: hintText,
             isDense: true,
             suffixIcon: icon,
             suffixIconColor: iconColor,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
             labelText: labelText,
-            labelStyle: GoogleFonts.dmSans(fontSize: hintFontSize)),
+            labelStyle: GoogleFonts.poppins(fontSize: hintFontSize)),
       ),
     );
   }

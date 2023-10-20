@@ -91,6 +91,21 @@ class ApiRepo {
     }
   }
 
+  // forget otp
+  Future forgetOtp(Map<String, dynamic> data) async {
+    try {
+      Response response = await _api.request
+          .post(ServiceConstant.forgetOtp, options: options, data: data);
+      if (response.statusCode == 200) {
+        return response.data;
+      } else {
+        // customeToast("Something went wrong");
+      }
+    } on DioException catch (e) {
+      DioExceptions.fromDioError(e);
+    }
+  }
+
   // user edit
   Future userEditApi(Map<String, dynamic> data) async {
     try {
@@ -177,6 +192,36 @@ class ApiRepo {
     try {
       Response response = await _api.request
           .post(ServiceConstant.forms, options: options, data: data);
+      if (response.statusCode == 200) {
+        return response.data;
+      } else {
+        // customeToast("Something went wrong");
+      }
+    } on DioException catch (e) {
+      DioExceptions.fromDioError(e);
+    }
+  }
+
+  // save
+  Future saves(Map<String, dynamic> data) async {
+    try {
+      Response response = await _api.request
+          .post(ServiceConstant.save, options: options, data: data);
+      if (response.statusCode == 200) {
+        return response.data;
+      } else {
+        // customeToast("Something went wrong");
+      }
+    } on DioException catch (e) {
+      DioExceptions.fromDioError(e);
+    }
+  }
+
+  // getformdata
+  Future getformData(Map<String, dynamic> data) async {
+    try {
+      Response response = await _api.request
+          .post(ServiceConstant.getFormData, options: options, data: data);
       if (response.statusCode == 200) {
         return response.data;
       } else {

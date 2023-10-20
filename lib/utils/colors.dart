@@ -22,4 +22,6 @@ Color whiteColor = Colors.white;
 
 Color appColor = const Color(0xff231F20);
 
+Color appdisableColor = Color.fromARGB(255, 32, 31, 31);
+
 Color appYellowColor = const Color(0xffFFC919);

@@ -1,27 +1,30 @@
-class LocalDataModel {
+class SyncLocalDataModel {
   final int id;
   final Map<dynamic, dynamic> data;
   final bool shouldDeleteAfterUpload;
   final String formName;
+  final List wholelist;
   final String userid;
   final String subadminid;
   final String formid;
 
-  LocalDataModel(
+  SyncLocalDataModel(
       {required this.data,
       required this.id,
       required this.shouldDeleteAfterUpload,
       required this.formName,
+      required this.wholelist,
       required this.userid,
       required this.formid,
       required this.subadminid});
 
-  factory LocalDataModel.fromJson(Map<String, dynamic> json) {
-    return LocalDataModel(
+  factory SyncLocalDataModel.fromJson(Map<String, dynamic> json) {
+    return SyncLocalDataModel(
         id: json['id'],
         data: json['data'],
         shouldDeleteAfterUpload: json['shouldDeleteAfterUpload'],
         formName: json['formName'],
+        wholelist: json['wholelist'],
         userid: json['userid'],
         formid: json['formid'],
         subadminid: json['subadminid']);
@@ -33,6 +36,7 @@ class LocalDataModel {
       'data': data,
       'shouldDeleteAfterUpload': shouldDeleteAfterUpload,
       'formName': formName,
+      'wholelist': wholelist,
       'userid': userid,
       'formid': formid,
       'subadminid': subadminid

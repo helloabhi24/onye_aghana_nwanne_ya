@@ -5,6 +5,7 @@ import 'package:onye_aghana_nwanne_ya/view/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
   DependencyInjection.init();
 }
 
@@ -17,9 +18,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-        useMaterial3: true,
-        primarySwatch: Colors.blue,
-      ),
+          useMaterial3: true,
+          primarySwatch: Colors.blue,
+          disabledColor: Colors.red),
       home: const SplashScreen(),
     );
   }

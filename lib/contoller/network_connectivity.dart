@@ -1,10 +1,14 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:onye_aghana_nwanne_ya/contoller/form_controller.dart';
+import 'package:onye_aghana_nwanne_ya/contoller/shared_prefrence_controller.dart';
 
 class NetworkController extends GetxController {
   final Connectivity _connectivity = Connectivity();
   RxBool isInternet = false.obs;
+
+  SharedPref sharedPref = Get.put(SharedPref());
 
   @override
   void onInit() {
@@ -32,6 +36,9 @@ class NetworkController extends GetxController {
           snackStyle: SnackStyle.GROUNDED);
     } else {
       isInternet.value = true;
+      sharedPref.userID.isNotEmpty
+          ? FormController().forms(sharedPref.userID.value, false, false)
+          : null;
       if (Get.isSnackbarOpen) {
         Get.closeCurrentSnackbar();
       }

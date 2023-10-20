@@ -33,6 +33,66 @@ class CustomText extends StatelessWidget {
   }
 }
 
+class CustomTextPhone extends StatelessWidget {
+  final String? text;
+  final Color? color;
+  const CustomTextPhone({super.key, required this.text, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text!,
+      style: GoogleFonts.poppins(
+        color: color ?? Colors.black,
+        fontSize: 20,
+        fontWeight: FontWeight.w500,
+      ),
+    );
+  }
+}
+
+class CustomTextOverFlow extends StatelessWidget {
+  final String? text;
+  final Color? color;
+  const CustomTextOverFlow({super.key, required this.text, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text!,
+      // maxLines: 3,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: GoogleFonts.poppins(
+        color: color ?? Colors.black,
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+      ),
+    );
+  }
+}
+
+class CustomTextOverFlowName extends StatelessWidget {
+  final String? text;
+  final Color? color;
+  const CustomTextOverFlowName({super.key, required this.text, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text!,
+      // maxLines: 3,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: GoogleFonts.poppins(
+        color: color ?? Colors.black,
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+}
+
 class CustomButtonText extends StatelessWidget {
   final String? text;
   final Color? color;

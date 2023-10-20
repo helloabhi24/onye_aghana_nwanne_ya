@@ -11,37 +11,44 @@ import 'package:onye_aghana_nwanne_ya/custom_widgets/custom_text_widget.dart';
 import 'package:onye_aghana_nwanne_ya/utils/colors.dart';
 
 import '../utils/size_helper.dart';
+import 'package:path_provider/path_provider.dart';
 
 class WithOutImageWidget extends StatelessWidget {
   final VoidCallback? onChangedGallery;
   final VoidCallback? onChangedCamera;
+  final bool? isAnyImage;
   const WithOutImageWidget(
       {super.key,
       required this.onChangedCamera,
-      required this.onChangedGallery});
+      required this.onChangedGallery,
+      required this.isAnyImage});
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: !isAnyImage!
+          ? MainAxisAlignment.spaceBetween
+          : MainAxisAlignment.spaceAround,
       children: [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                CustomText(
-                  text: "No image selected",
-                  color: redColor,
+        !isAnyImage!
+            ? Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      CustomText(
+                        text: "No image selected",
+                        color: redColor,
+                      ),
+                      CustomText(
+                        text: "(Optional)",
+                        color: redColor,
+                      ),
+                    ],
+                  ),
                 ),
-                CustomText(
-                  text: "(Optional)",
-                  color: redColor,
-                ),
-              ],
-            ),
-          ),
-        ),
+              )
+            : const SizedBox.shrink(),
         Card(
           elevation: 3,
           child: IconButton(
@@ -99,22 +106,6 @@ class WithImageWidget extends StatelessWidget {
                     color: redColor,
                   )),
             ),
-            // Card(
-            //   child: Padding(
-            //     padding: const EdgeInsets.all(8.0),
-            //     child: SizedBox(
-            //       width: Get.height * .25,
-            //       child: CustomText(
-            //         text:
-            //             "File Selected \n${driverInfoController.selectedImagePath.value.split('/').last.split('_').last}",
-            //         fontSize: 15,
-            //         fontWeight: FontWeight.w500,
-            //         color: greenColor,
-            //         textOverflow: TextOverflow.ellipsis,
-            //       ),
-            //     ),
-            //   ),
-            // ),
             Card(
               elevation: 3,
               child: IconButton(
@@ -140,162 +131,21 @@ class WithImageWidget extends StatelessWidget {
   }
 }
 
-// class NoParameterImageWidget extends StatelessWidget {
-//   NoParameterImageWidget({
-//     super.key,
-//   });
-
-//   String selectedImagePath = "";
-//   String base64string = "";
-//   Future getImageforSignUp(ImageSource imageSource) async {
-//     var pickeImage = await ImagePicker().pickImage(source: imageSource);
-//     if (pickeImage != null) {
-//       File? img = await getCroppedImage(pickeImage);
-
-//       // pathName.value = pickeImage.name;
-
-//       // selectedImagePath.value = await img!.path;
-//       selectedImagePath = img!.path;
-
-//       // File imagefile = File(selectedImagePath.value); //convert Path to File
-//       File imagefile = File(img.path); //convert Path to File
-
-//       Uint8List imagebytes = await imagefile.readAsBytes(); //convert to bytes
-//       base64string = "data:image/jpeg;base64,${base64.encode(imagebytes)}";
-
-//       // imageListforSignUp.add("base64,${base64stringforSignUp.value}");
-//     } else {
-//       // customToast("No Image Selected");
-//     }
-//   }
-
-//   getCroppedImage(XFile image) async {
-//     CroppedFile? croppedFile = await ImageCropper().cropImage(
-//         maxHeight: 150,
-//         maxWidth: 150,
-//         sourcePath: image.path,
-//         aspectRatio: const CropAspectRatio(ratioX: 2, ratioY: 2));
-//     if (croppedFile == null) return null;
-//     return File(croppedFile.path);
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return selectedImagePath.isEmpty
-//         ? Row(
-//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//             children: [
-//               Card(
-//                 child: Padding(
-//                   padding: const EdgeInsets.all(8.0),
-//                   child: Column(
-//                     children: [
-//                       CustomText(
-//                         text: "No image selected",
-//                         color: redColor,
-//                       ),
-//                       CustomText(
-//                         text: "(Optional)",
-//                         color: redColor,
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//               Card(
-//                 elevation: 3,
-//                 child: IconButton(
-//                     onPressed: () {
-//                       getImageforSignUp(ImageSource.gallery);
-//                     },
-//                     icon: const Icon(
-//                       Icons.photo,
-//                       size: 30,
-//                     )),
-//               ),
-//               Card(
-//                 elevation: 3,
-//                 child: IconButton(
-//                     onPressed: () {
-//                       getImageforSignUp(ImageSource.camera);
-//                     },
-//                     icon: const Icon(
-//                       Icons.camera_alt,
-//                       size: 30,
-//                     )),
-//               )
-//             ],
-//           )
-//         : Column(
-//             children: [
-//               Card(
-//                 elevation: 5,
-//                 child: Image.file(File(selectedImagePath)),
-//               ),
-//               getheight(context, 0.010),
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   Card(
-//                     elevation: 3,
-//                     child: IconButton(
-//                         onPressed: () {
-//                           selectedImagePath = "";
-//                         },
-//                         icon: Icon(
-//                           Icons.cancel,
-//                           size: 30,
-//                           color: redColor,
-//                         )),
-//                   ),
-//                   // Card(
-//                   //   child: Padding(
-//                   //     padding: const EdgeInsets.all(8.0),
-//                   //     child: SizedBox(
-//                   //       width: Get.height * .25,
-//                   //       child: CustomText(
-//                   //         text:
-//                   //             "File Selected \n${driverInfoController.selectedImagePath.value.split('/').last.split('_').last}",
-//                   //         fontSize: 15,
-//                   //         fontWeight: FontWeight.w500,
-//                   //         color: greenColor,
-//                   //         textOverflow: TextOverflow.ellipsis,
-//                   //       ),
-//                   //     ),
-//                   //   ),
-//                   // ),
-//                   Card(
-//                     elevation: 3,
-//                     child: IconButton(
-//                         onPressed: () {
-//                           getImageforSignUp(ImageSource.gallery);
-//                         },
-//                         icon: const Icon(
-//                           Icons.photo,
-//                           size: 30,
-//                         )),
-//                   ),
-//                   Card(
-//                     elevation: 3,
-//                     child: IconButton(
-//                         onPressed: () {
-//                           getImageforSignUp(ImageSource.camera);
-//                         },
-//                         icon: const Icon(
-//                           Icons.camera_alt,
-//                           size: 30,
-//                         )),
-//                   )
-//                 ],
-//               )
-//             ],
-//           );
-//   }
-// }
-
 class NoParameterImageWidget extends StatefulWidget {
   final String? questionName;
-  NoParameterImageWidget({Key? key, required this.questionName})
+  final String? Function(String?)? validator;
+  final String? base64String;
+  final bool? isEdit;
+  final int? index;
+  final List? editableList; // Add validator function
+  NoParameterImageWidget(
+      {Key? key,
+      required this.questionName,
+      required this.index,
+      this.validator,
+      this.isEdit,
+      this.base64String,
+      this.editableList})
       : super(key: key);
 
   @override
@@ -303,8 +153,27 @@ class NoParameterImageWidget extends StatefulWidget {
 }
 
 class _NoParameterImageWidgetState extends State<NoParameterImageWidget> {
-  String selectedImagePath = "";
+  late var fileName;
+  // convert() async {
+  //   return await getFilePath();
+  // }
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   if (widget.isEdit!) {
+  //     String file = convert();
+  //     fileName = base64ToImage(widget.base64String!, file);
+  //   }
+  // }
+
+  late String selectedImagePath = widget.isEdit!
+      ? widget.base64String ?? (widget.base64String!.split("|"))[1]
+      : "";
+  // String selectedImagePath = "";
+
   String base64string = "";
+  var byte;
 
   FormController formController = Get.find();
 
@@ -319,13 +188,53 @@ class _NoParameterImageWidgetState extends State<NoParameterImageWidget> {
 
       File imagefile = File(img!.path);
       Uint8List imagebytes = await imagefile.readAsBytes();
+      byte = imagebytes;
       base64string = "data:image/jpeg;base64,${base64.encode(imagebytes)}";
       setState(() {
-        formController.addData(widget.questionName!, base64string);
+        formController.ohterWholeList[widget.index!]["value"] =
+            "$base64string|$selectedImagePath";
+
+        widget.isEdit!
+            ? formController.updateValue(widget.editableList!,
+                widget.questionName!, [base64string, selectedImagePath])
+            : formController.addData(
+                widget.questionName!, [base64string, selectedImagePath]);
+        formController.removeEntriesWithQuestion(
+            formController.editedData, widget.questionName!);
+        formController.editedData.add({
+          "question": widget.questionName!,
+          "value": [base64string, selectedImagePath],
+          "type": "image"
+        });
+        if (widget.isEdit!) {
+          formController.removeEntriesWithQuestion(
+              formController.editedSubmitData, widget.questionName!);
+          formController.editedSubmitData.add({
+            "question": widget.questionName!,
+            "value": [base64string, selectedImagePath],
+            "type": "image"
+          });
+        }
+
+        // formController.addData(widget.questionName!, base64string);
       });
-    } else {
-      // Handle the case when no image is selected
     }
+  }
+
+  Future<File> base64ToImage(String base64String, String filePath) async {
+    String base64Strings = base64String;
+
+// Remove the prefix
+    String base64Data = base64Strings.substring(base64Strings.indexOf(',') + 1);
+    final buffer = Uint8List.fromList(base64.decode(base64Data));
+    final file = File(filePath);
+    await file.writeAsBytes(buffer);
+    return file;
+  }
+
+  Future<String> getFilePath() async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.path + '/path_to_save_image.jpg';
   }
 
   Future<File?> getCroppedImage(XFile image) async {
@@ -341,50 +250,61 @@ class _NoParameterImageWidgetState extends State<NoParameterImageWidget> {
   @override
   Widget build(BuildContext context) {
     return selectedImagePath.isEmpty
-        ? Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        ? Column(
             children: [
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      CustomText(
-                        text: "No image selected",
-                        color: redColor,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          CustomText(
+                            text: "No image selected",
+                            color: redColor,
+                          ),
+                          CustomText(
+                            text: "(Optional)",
+                            color: redColor,
+                          ),
+                        ],
                       ),
-                      CustomText(
-                        text: "(Optional)",
-                        color: redColor,
+                    ),
+                  ),
+                  Card(
+                    elevation: 3,
+                    child: IconButton(
+                      onPressed: () async {
+                        getImageforSignUp(ImageSource.gallery);
+                      },
+                      icon: const Icon(
+                        Icons.photo,
+                        size: 30,
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  Card(
+                    elevation: 3,
+                    child: IconButton(
+                      onPressed: () {
+                        getImageforSignUp(ImageSource.camera);
+                      },
+                      icon: const Icon(
+                        Icons.camera_alt,
+                        size: 30,
+                      ),
+                    ),
+                  )
+                ],
               ),
-              Card(
-                elevation: 3,
-                child: IconButton(
-                  onPressed: () {
-                    getImageforSignUp(ImageSource.gallery);
-                  },
-                  icon: const Icon(
-                    Icons.photo,
-                    size: 30,
+              if (widget.validator != null && widget.validator!("") != null)
+                Text(
+                  widget.validator!("")!, // Display error message if provided
+                  style: const TextStyle(
+                    color: Colors.red,
                   ),
                 ),
-              ),
-              Card(
-                elevation: 3,
-                child: IconButton(
-                  onPressed: () {
-                    getImageforSignUp(ImageSource.camera);
-                  },
-                  icon: const Icon(
-                    Icons.camera_alt,
-                    size: 30,
-                  ),
-                ),
-              )
             ],
           )
         : Column(

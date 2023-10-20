@@ -4,14 +4,13 @@ import 'package:onye_aghana_nwanne_ya/custom_widgets/custom_text_widget.dart';
 import 'package:onye_aghana_nwanne_ya/utils/size_helper.dart';
 import '../../custom_widgets/app_bar_widget.dart';
 
-class TermAndConditionPage extends StatelessWidget {
-  const TermAndConditionPage({super.key});
+class PrivcyPolicyPage extends StatelessWidget {
+  const PrivcyPolicyPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      // backgroundColor: lightAmber.withOpacity(0.1),
       appBar: AppBarWidget(
         actions: [
           IconButton(
@@ -32,7 +31,7 @@ class TermAndConditionPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               getheight(context, 0.010),
-              const CustomBoldText(text: "Terms and Conditons"),
+              const CustomBoldText(text: "Privacy Policy"),
               getheight(context, 0.020),
               const CustomBoldText(text: "Acceptance of Terms"),
               const CustomText(

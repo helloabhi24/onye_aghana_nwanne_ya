@@ -1,5 +1,5 @@
 const String EMPTY_MOBILE_NUMBER = "Please Enter Mobile Number";
-const String VALID_MOBILE_NUMBER = "Please Enter 11 Digit Mobile Number";
+const String VALID_MOBILE_NUMBER = "Please Enter 10 Digit Mobile Number";
 const String EMPTY_MOBILE_PASSWORD = "Please Enter Mobile Number";
 const String EMPTY_FIRST_NAME = "Please Enter First Name";
 const String THREE_FIRST_NAME = "Please Enter First Name at Least 3 Character";

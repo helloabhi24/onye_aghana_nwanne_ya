@@ -9,7 +9,6 @@ import 'package:onye_aghana_nwanne_ya/utils/loading_indicator.dart';
 import 'package:onye_aghana_nwanne_ya/utils/size_helper.dart';
 import 'package:onye_aghana_nwanne_ya/utils/toast.dart';
 import 'package:onye_aghana_nwanne_ya/view/login/sign_in_page.dart';
-import 'package:onye_aghana_nwanne_ya/view/login/verification_page.dart';
 import '../../custom_widgets/app_bar_widget.dart';
 import '../../custom_widgets/custom_button.dart';
 import '../../custom_widgets/custom_text_form_field.dart';
@@ -43,14 +42,15 @@ class ForgetPasswordPage extends StatelessWidget {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return EMPTY_MOBILE_NUMBER;
-                      } else if (value.length < 11) {
+                      } else if (value.length < 10) {
                         return VALID_MOBILE_NUMBER;
                       }
                       return null;
                     },
                     textInputType: TextInputType.number,
                     formatter: [
-                      LengthLimitingTextInputFormatter(11),
+                      LengthLimitingTextInputFormatter(10),
+                      FilteringTextInputFormatter.deny(RegExp('^0+'))
                     ],
                     controller: signUpController.forgetPasswordController,
                     labelText: "Mobile Number",
@@ -60,6 +60,8 @@ class ForgetPasswordPage extends StatelessWidget {
                       ? CustomButton(
                           text: "Continue",
                           onPressed: () async {
+                            FocusManager.instance.primaryFocus?.unfocus();
+
                             if (formKey.currentState!.validate()) {
                               if (networkController.isInternet.value) {
                                 await signUpController.userResetPassword(true);

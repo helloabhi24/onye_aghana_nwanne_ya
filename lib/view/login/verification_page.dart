@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -9,7 +11,6 @@ import 'package:onye_aghana_nwanne_ya/utils/loading_indicator.dart';
 import 'package:onye_aghana_nwanne_ya/utils/size_helper.dart';
 import 'package:onye_aghana_nwanne_ya/utils/toast.dart';
 import 'package:onye_aghana_nwanne_ya/view/login/confirm_password_page.dart';
-import 'package:onye_aghana_nwanne_ya/view/login/sign_up_page.dart';
 import '../../custom_widgets/app_bar_widget.dart';
 import '../../custom_widgets/custom_button.dart';
 import '../../custom_widgets/custom_text_form_field.dart';
@@ -23,38 +24,39 @@ class VerificationPage extends StatefulWidget {
 }
 
 class _VerificationPageState extends State<VerificationPage> {
-  // Timer _timer = Timer(const Duration(seconds: 1), () {});
-  // int _start = 15;
-
-  // void startTimer() {
-  //   const oneSec = Duration(seconds: 1);
-  //   _timer = Timer.periodic(
-  //     oneSec,
-  //     (Timer timer) {
-  //       if (_start == 0) {
-  //         setState(() {
-  //           timer.cancel();
-  //         });
-  //       } else {
-  //         setState(() {
-  //           _start--;
-  //         });
-  //       }
-  //     },
-  //   );
-  // }
   SignUpController signUpController = Get.put(SignUpController());
   NetworkController networkController = Get.find();
+  late Timer timer;
+  int _start = 10;
+
+  void startTimer() {
+    const oneSec = Duration(seconds: 1);
+    timer = Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (_start == 0) {
+          setState(() {
+            timer.cancel();
+          });
+        } else {
+          setState(() {
+            _start--;
+          });
+        }
+      },
+    );
+  }
 
   @override
   void initState() {
     super.initState();
-    signUpController.startTimer();
+
+    startTimer();
   }
 
   @override
   void dispose() {
-    signUpController.timer.cancel();
+    timer.cancel();
     super.dispose();
   }
 
@@ -212,7 +214,6 @@ class _VerificationPageState extends State<VerificationPage> {
                     if (otp.length < 5) {
                       customToast("Please Provide valid otp");
                     } else if (otp == signUpController.otpMsg.value) {
-                      debugPrint("you are ready to go");
                       Get.dialog(AlertDialog(
                         title: CustomBoldText(
                           text: "OTP Verfiy Successfully",
@@ -238,48 +239,57 @@ class _VerificationPageState extends State<VerificationPage> {
                 },
               ),
               getheight(context, 0.10),
-              Obx(
-                () => Center(
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const CustomText(text: "Edit phone number"),
-                          TextButton(
-                              onPressed: () =>
-                                  Get.offAll(() => const SingUpPage()),
-                              child: Icon(
-                                Icons.edit,
-                                color: blueColor,
-                              ))
-                        ],
-                      ),
-                      const CustomText(text: "Don't receive an OTP"),
-                      getheight(context, 0.010),
-                      signUpController.start.value == 0
-                          ? !signUpController.isLoading.value
-                              ? TextButton(
-                                  onPressed: () async {
-                                    if (networkController.isInternet.value) {
-                                      await signUpController.resendOtp();
-                                    } else {
-                                      customToast("Please Connect Internet");
-                                    }
-                                  },
-                                  child: CustomText(
-                                    text: "Resend OTP",
-                                    color: blueColor,
-                                  ))
-                              : const CustomLoading()
-                          : CustomButtonText(
-                              text: "${signUpController.start.value}",
+              Center(
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const CustomText(text: "Edit phone number"),
+                        TextButton(
+                            onPressed: () => Get.back(),
+                            // Get.offAll(() => const SingUpPage()),
+                            child: Icon(
+                              Icons.edit,
                               color: blueColor,
-                            )
-                    ],
-                  ),
+                            ))
+                      ],
+                    ),
+                    const CustomText(text: "Don't receive an OTP"),
+                    getheight(context, 0.010),
+                    // signUpController.start.value == 0
+                    _start == 0
+                        ? Obx(
+                            () => !signUpController.isResendOtp.value
+                                ? TextButton(
+                                    onPressed: () async {
+                                      if (networkController.isInternet.value) {
+                                        signUpController.isSign.value
+                                            ? await signUpController.resendOtp()
+                                            : await signUpController
+                                                .forgetOtp();
+                                        setState(() {
+                                          _start = 10;
+                                          startTimer();
+                                        });
+                                      } else {
+                                        customToast("Please Connect Internet");
+                                      }
+                                    },
+                                    child: CustomText(
+                                      text: "Resend OTP",
+                                      color: blueColor,
+                                    ))
+                                : const CustomLoading(),
+                          )
+                        : CustomButtonText(
+                            // text: "${signUpController.start.value}",
+                            text: "$_start",
+                            color: blueColor,
+                          ),
+                  ],
                 ),
-              )
+              ),
             ],
           ),
         ),

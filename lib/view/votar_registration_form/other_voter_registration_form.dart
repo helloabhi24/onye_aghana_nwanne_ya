@@ -2,22 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:onye_aghana_nwanne_ya/contoller/form_controller.dart';
-import 'package:onye_aghana_nwanne_ya/contoller/sign_up_controller.dart';
+import 'package:onye_aghana_nwanne_ya/contoller/network_connectivity.dart';
+import 'package:onye_aghana_nwanne_ya/contoller/shared_prefrence_controller.dart';
 import 'package:onye_aghana_nwanne_ya/custom_widgets/custom_button.dart';
 import 'package:onye_aghana_nwanne_ya/custom_widgets/custom_date_picker.dart';
 import 'package:onye_aghana_nwanne_ya/custom_widgets/custom_floating_action_button.dart';
+import 'package:onye_aghana_nwanne_ya/custom_widgets/custom_text_form_field_with_controller.dart';
 import 'package:onye_aghana_nwanne_ya/custom_widgets/custom_text_widget.dart';
 import 'package:onye_aghana_nwanne_ya/custom_widgets/drop_down_widget.dart';
+import 'package:onye_aghana_nwanne_ya/model/db_data_model.dart';
+import 'package:onye_aghana_nwanne_ya/services/local_database_helper.dart';
 import 'package:onye_aghana_nwanne_ya/utils/colors.dart';
+import 'package:onye_aghana_nwanne_ya/utils/loading_indicator.dart';
 import 'package:onye_aghana_nwanne_ya/utils/size_helper.dart';
+import 'package:onye_aghana_nwanne_ya/view/dashboard/dashboard_page.dart';
 import 'package:onye_aghana_nwanne_ya/view/votar_registration_form/basic_voter_registration_form.dart';
 import '../../custom_widgets/app_bar_widget.dart';
-import '../../custom_widgets/custom_text_form_field.dart';
+import '../../custom_widgets/custom_syn_button.dart';
 import '../../custom_widgets/custome_pop_down.dart';
 import '../../custom_widgets/image_selected_widget.dart';
 
 class OtherVoterRegistrationForm extends StatefulWidget {
-  const OtherVoterRegistrationForm({super.key});
+  final bool? isEdit;
+  const OtherVoterRegistrationForm({super.key, required this.isEdit});
 
   @override
   State<OtherVoterRegistrationForm> createState() =>
@@ -26,16 +33,78 @@ class OtherVoterRegistrationForm extends StatefulWidget {
 
 class _OtherVoterRegistrationFormState
     extends State<OtherVoterRegistrationForm> {
+  // List<TextEditingController> generalController = [];
+  FormController formController = Get.find();
+  NetworkController networkController = Get.put(NetworkController());
+  Map textMap = {};
+  SharedPref sharedPref = Get.put(SharedPref());
+  List submitList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    if (formController.formsList.isNotEmpty) {
+      for (int i = 0;
+          i <
+              formController
+                  .formsList[formController.index.value].formData.length;
+          i++) {
+        print("value of i");
+        print(i);
+        formController.formsList[formController.index.value].formData[i]
+                        .questionType ==
+                    "1" ||
+                formController.formsList[formController.index.value].formData[i]
+                        .questionType ==
+                    "2"
+            ? formController.generalController.add(TextEditingController(
+                text: widget.isEdit!
+                    ? formController.ohterWholeList[i]["value"]
+                    : ""))
+            : null;
+      }
+    } else if (formController.storedApiResponses.isNotEmpty) {
+      for (int i = 0;
+          i <
+              formController
+                  .storedApiResponses[formController.index.value]['form_data']
+                  .length;
+          i++) {
+        formController.storedApiResponses[formController.index.value]
+                        ['form_data'][i]['question_type'] ==
+                    "1" ||
+                formController.storedApiResponses[formController.index.value]
+                        ['form_data'][i]['question_type'] ==
+                    "2"
+            ? formController.generalController.add(TextEditingController(
+                text: widget.isEdit!
+                    ? formController.ohterWholeList[i]["value"]
+                    : ""))
+            : null;
+      }
+    }
+  }
+
+  late int id;
+  //= Get.arguments[1] ?? 0;
+
   @override
   Widget build(BuildContext context) {
-    FormController formController = Get.find();
-    SignUpController signUpController = Get.put(SignUpController());
+    final _formKey = GlobalKey<FormState>();
+
     DateTime selectedDate = DateTime.now();
 
     void handleDateChanged(DateTime newDate) {
       setState(() {
         selectedDate = newDate;
       });
+    }
+
+    if (widget.isEdit!) {
+      // id = Get.arguments[1];
+      id = 0;
+    } else {
+      id = 0;
     }
 
     var vari;
@@ -48,432 +117,954 @@ class _OtherVoterRegistrationFormState
       variLocal = formController.storedApiResponses[formController.index.value]
           ["form_data"];
     }
+    Map allData = {}.obs;
+    void finalDataf(Map map) {
+      allData.addAll(map);
+      print(allData);
+    }
 
-    return Scaffold(
-      // resizeToAvoidBottomInset: false,
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-      floatingActionButton: CustomFloatingActionButton(
-          icon: Icon(
-            Icons.fast_rewind,
-            color: appYellowColor,
-          ),
-          onPressed: () => Get.off(() => const BasicVoterRegistrationForm(),
-              arguments: formController.index.value,
-              transition: Transition.native)),
-      appBar: AppBarWidget(
-        actions: [
-          TextButton(
-              onPressed: () {},
-              child: Icon(
-                Icons.sync_outlined,
-                color: appColor,
-              )),
-          const CustomPopDown()
-        ],
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 15.0, right: 15.0, top: 15.0),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Column(
-                  // crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    getheight(context, 0.020),
-                    CustomHeadingText(text: formController.formsName.value),
-                    getheight(context, 0.040),
-                    Row(
-                      children: [
-                        CustomSelectedButton(
-                          text: "Basic",
-                          onPressed: () {},
-                          // onPressed: () => Get.off(
-                          //     () => const BasicVoterRegistrationForm(),
-                          //     transition: Transition.native),
-                          isSelected: false,
-                        ),
-                        getwidth(context, 0.010),
-                        CustomSelectedButton(
-                          text: "Other Info",
-                          onPressed: () {},
-                          isSelected: true,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                getheight(context, 0.020),
-                Column(
-                  children: [
-                    // for (var i in formController.filterFormList)
-                    //   i.questionType == "3"
-                    //       ? DropDownWidget(
-                    //           // valueList: formController.maritual,
-                    //           valueList: i.value.split("|"),
-                    //           dropValue: 'one')
-                    //       : i.questionType == "4"
-                    //           ? DropDownWidget(
-                    //               valueList: i.value.split("|"),
-                    //               dropValue: 'one')
-                    //           : const SizedBox.shrink(),
-                    formController.formsList.isNotEmpty
-                        ? SizedBox(
-                            // height: Get.height * (vari.length / 7.3),
-                            height: Get.height * 0.595,
-                            child: ListView.builder(
-                                physics: BouncingScrollPhysics(),
-                                itemCount: vari.length,
-                                itemBuilder: (context, index) {
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          CustomText(
-                                              text: vari[index].question),
-                                          vari[index].mandatory == "1"
-                                              ? RichText(
-                                                  text: const TextSpan(
-                                                      text: ' *',
-                                                      style: TextStyle(
-                                                        color: Colors.red,
-                                                        fontSize: 15.0,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      )))
-                                              : const SizedBox.shrink()
-                                        ],
-                                      ),
-                                      getheight(context, 0.010),
-                                      vari[index].questionType == "1"
-                                          ? CustomTextFormField(
-                                              onChanged: (p0) {
-                                                formController.addData(
-                                                    vari[index].question, p0);
-                                              },
-                                            )
-                                          : SizedBox.shrink(),
-                                      vari[index].questionType == "2"
-                                          ? CustomTextFormFieldAddress(
-                                              onChanged: (p0) {
-                                                formController.addData(
-                                                    vari[index].question, p0);
-                                              },
-                                            )
-                                          : SizedBox.shrink(),
-                                      vari[index].questionType == "3"
-                                          ? DropDownWidget(
-                                              valueList:
-                                                  vari[index].value.split("|"),
-                                              dropValue:
-                                                  (vari[index].value.split("|"))
-                                                      .first,
-                                              valueOnText: vari[index].question,
-                                            )
-                                          : SizedBox.shrink(),
-                                      vari[index].questionType == "4"
-                                          ? MultiSelectValue(
-                                              listValue:
-                                                  vari[index].value.split("|"),
-                                              // selectedList: formController.multi,
-                                              questionValue:
-                                                  vari[index].question,
-                                            )
-                                          //  DropDownWidget(
-                                          //     valueList: vari[index].value.split("|"),
-                                          //     dropValue:
-                                          //         (vari[index].value.split("|"))
-                                          //             .first,
-                                          //     valueOnText: vari[index].question)
-                                          : SizedBox.shrink(),
-                                      vari[index].questionType == "5"
-                                          ? NoParameterImageWidget(
-                                              questionName:
-                                                  vari[index].question,
-                                            )
-                                          // WithOutImageWidget(
-                                          //     onChangedCamera: () =>
-                                          //         signUpController.getImageforSignUp(
-                                          //             ImageSource.camera),
-                                          //     onChangedGallery: () =>
-                                          //         signUpController.getImageforSignUp(
-                                          //             ImageSource.gallery),
-                                          //   )
-                                          : SizedBox.shrink(),
-                                      vari[index].questionType == "6"
-                                          ? CustomDatePicker(
-                                              // selectedDate: selectedDate,
-                                              onDateChanged: handleDateChanged,
-                                              questionValue:
-                                                  vari[index].question,
-                                            )
-                                          // ? CustomTextFormField(
-                                          //     onTap: () async {
-                                          //       FocusManager.instance.primaryFocus
-                                          //           ?.unfocus();
-                                          //       DateTime? newDate =
-                                          //           await showDatePicker(
-                                          //               context: context,
-                                          //               helpText: "DATE OF BIRTH",
-                                          //               initialDate:
-                                          //                   formController.date.value,
-                                          //               firstDate: DateTime(1990),
-                                          //               lastDate: DateTime(2222));
-                                          //       if (newDate == null) return;
-                                          //       formController.date.value = newDate;
-                                          //       formController.dobController.text =
-                                          //           DateFormat('dd/MM/yyyy')
-                                          //               .format(newDate);
-                                          //       FocusManager.instance.primaryFocus
-                                          //           ?.unfocus();
-                                          //     },
-                                          //     controller:
-                                          //         formController.dobController,
-                                          //     textInputType: TextInputType.datetime,
-                                          //     // labelText: "Date of Birth",
-                                          //   )
-                                          : SizedBox.shrink(),
-                                      getheight(context, 0.010)
-                                    ],
-                                  );
-                                }),
-                          )
-                        : SizedBox(
-                            // height: Get.height * (vari.length / 7.3),
-                            height: Get.height * 0.595,
-                            child: ListView.builder(
-                                physics: BouncingScrollPhysics(),
-                                itemCount: variLocal.length,
-                                itemBuilder: (context, index) {
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          CustomText(
-                                              text: variLocal[index]
-                                                  ["question"]),
-                                          variLocal[index]["mandatory"] == "1"
-                                              ? RichText(
-                                                  text: const TextSpan(
-                                                      text: ' *',
-                                                      style: TextStyle(
-                                                        color: Colors.red,
-                                                        fontSize: 15.0,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      )))
-                                              : const SizedBox.shrink()
-                                        ],
-                                      ),
-                                      getheight(context, 0.010),
-                                      variLocal[index]["question_type"] == "1"
-                                          ? CustomTextFormField(
-                                              onChanged: (p0) {
-                                                formController.addData(
-                                                    variLocal[index]
-                                                        ["question"],
-                                                    p0);
-                                              },
-                                            )
-                                          : SizedBox.shrink(),
-                                      variLocal[index]["question_type"] == "2"
-                                          ? CustomTextFormFieldAddress(
-                                              onChanged: (p0) {
-                                                formController.addData(
-                                                    variLocal[index]
-                                                        ["question"],
-                                                    p0);
-                                              },
-                                            )
-                                          : SizedBox.shrink(),
-                                      variLocal[index]["question_type"] == "3"
-                                          ? DropDownWidget(
-                                              valueList: variLocal[index]
-                                                      ["_value"]
-                                                  .split("|"),
-                                              dropValue: (variLocal[index]
-                                                          ["_value"]
-                                                      .split("|"))
-                                                  .first,
-                                              valueOnText: variLocal[index]
-                                                  ["question"],
-                                            )
-                                          : SizedBox.shrink(),
-                                      variLocal[index]["question_type"] == "4"
-                                          ? MultiSelectValue(
-                                              listValue: variLocal[index]
-                                                      ["_value"]
-                                                  .split("|"),
-                                              // selectedList: formController.multi,
-                                              questionValue: variLocal[index]
-                                                  ["question"],
-                                            )
-                                          //  DropDownWidget(
-                                          //     valueList: vari[index].value.split("|"),
-                                          //     dropValue:
-                                          //         (vari[index].value.split("|"))
-                                          //             .first,
-                                          //     valueOnText: vari[index].question)
-                                          : SizedBox.shrink(),
-                                      variLocal[index]["question_type"] == "5"
-                                          ? NoParameterImageWidget(
-                                              questionName: variLocal[index]
-                                                  ["question"],
-                                            )
-                                          // WithOutImageWidget(
-                                          //     onChangedCamera: () =>
-                                          //         signUpController.getImageforSignUp(
-                                          //             ImageSource.camera),
-                                          //     onChangedGallery: () =>
-                                          //         signUpController.getImageforSignUp(
-                                          //             ImageSource.gallery),
-                                          //   )
-                                          : SizedBox.shrink(),
-                                      variLocal[index]["question_type"] == "6"
-                                          ? CustomDatePicker(
-                                              // selectedDate: selectedDate,
-                                              onDateChanged: handleDateChanged,
-                                              questionValue: variLocal[index]
-                                                  ["question"],
-                                            )
-                                          // ? CustomTextFormField(
-                                          //     onTap: () async {
-                                          //       FocusManager.instance.primaryFocus
-                                          //           ?.unfocus();
-                                          //       DateTime? newDate =
-                                          //           await showDatePicker(
-                                          //               context: context,
-                                          //               helpText: "DATE OF BIRTH",
-                                          //               initialDate:
-                                          //                   formController.date.value,
-                                          //               firstDate: DateTime(1990),
-                                          //               lastDate: DateTime(2222));
-                                          //       if (newDate == null) return;
-                                          //       formController.date.value = newDate;
-                                          //       formController.dobController.text =
-                                          //           DateFormat('dd/MM/yyyy')
-                                          //               .format(newDate);
-                                          //       FocusManager.instance.primaryFocus
-                                          //           ?.unfocus();
-                                          //     },
-                                          //     controller:
-                                          //         formController.dobController,
-                                          //     textInputType: TextInputType.datetime,
-                                          //     // labelText: "Date of Birth",
-                                          //   )
-                                          : SizedBox.shrink(),
-                                      getheight(context, 0.010)
-                                    ],
-                                  );
-                                }),
+    void addData(String question, dynamic value) {
+      Map map = {question: value};
+      finalDataf(map);
+    }
+
+    int getcontrollerIndexTextLocal(int i) {
+      final a = (formController.storedApiResponses[formController.index.value]
+              ["form_data"] as List)
+          .where((v) => v['question_type'] == "1" || v['question_type'] == "2")
+          .toList();
+      var indexList = [];
+      for (var i = 0; i < a.length; i++) {
+        indexList.add(formController
+            .storedApiResponses[formController.index.value]["form_data"]
+            .indexOf(a[i]));
+      }
+      print(indexList);
+      // [3, 7]
+      return indexList.indexOf(i); // 0
+    }
+
+    int getcontrollerIndexText(int i) {
+      final a = (vari as List)
+          .where((v) => v.questionType == "1" || v.questionType == "2")
+          .toList();
+      var indexList = [];
+      for (var i = 0; i < a.length; i++) {
+        indexList.add(vari.indexOf(a[i]));
+      }
+      print(indexList);
+      // [3, 7]
+      return indexList.indexOf(i); // 0
+    }
+
+    return WillPopScope(
+      onWillPop: () async {
+        formController.firstFormController.clear();
+        formController.middleFormController.clear();
+        formController.surFormController.clear();
+        formController.teleFormController.clear();
+        formController.addressFormController.clear();
+        formController.dobController.clear();
+        formController.pollUnitController.clear();
+        formController.generalController.clear();
+        formController.allData.clear();
+        formController.editedData.clear();
+        formController.editedSubmitData.clear();
+        formController.ohterWholeList.clear();
+        return true;
+      },
+      child: Scaffold(
+        appBar: const AppBarWidget(
+          actions: [CustomSyncButton(), CustomPopDown()],
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 15.0, right: 15.0, top: 15.0),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Column(
+                    // crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      getheight(context, 0.020),
+                      CustomHeadingText(text: formController.formsName.value),
+                      getheight(context, 0.040),
+                      Row(
+                        children: [
+                          CustomSelectedButton(
+                            text: "Basic",
+                            onPressed: () {},
+                            isSelected: false,
                           ),
+                          getwidth(context, 0.010),
+                          CustomSelectedButton(
+                            text: "Other Info",
+                            onPressed: () {},
+                            isSelected: true,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  getheight(context, 0.020),
+                  Column(
+                    children: [
+                      formController.formsList.isNotEmpty
+                          ? SizedBox(
+                              // height: Get.height * (vari.length / 7.3),
+                              height: Get.height * 0.595,
+                              child: Form(
+                                onChanged: () {
+                                  // Form.of(primaryFocus!.context!).save();
+                                  print("any");
+                                },
+                                key: _formKey,
+                                child: ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: const BouncingScrollPhysics(),
+                                    itemCount: vari.length,
+                                    itemBuilder: (context, index) {
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          RichText(
+                                            text: TextSpan(
+                                                text:
+                                                    "${index + 1}. ${vari[index].question}",
+                                                style: GoogleFonts.poppins(
+                                                  color: Colors.black,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                                children: <TextSpan>[
+                                                  TextSpan(
+                                                      text: ' *',
+                                                      style: TextStyle(
+                                                          color: redColor)),
+                                                ]),
+                                          ),
+                                          getheight(context, 0.010),
+                                          vari[index].questionType == "1"
+                                              ? CustomTextFormFieldWithController(
+                                                  key: UniqueKey(),
+                                                  controller: formController
+                                                          .generalController[
+                                                      getcontrollerIndexText(
+                                                          index)],
+                                                  onTap: () {
+                                                    print(formController
+                                                        .generalController[
+                                                            index]
+                                                        .text);
+                                                  },
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.isEmpty) {
+                                                      return 'Please enter ${vari[index].question}';
+                                                    }
+                                                    return null;
+                                                  },
+                                                  onChanged: (p0) {
+                                                    formController
+                                                            .ohterWholeList[
+                                                        index]["value"] = p0;
+                                                    print("editng");
+                                                    print(formController
+                                                        .ohterWholeList);
+                                                  })
+                                              : const SizedBox.shrink(),
+                                          vari[index].questionType == "2"
+                                              ? CustomTextFormFieldAddressWithController(
+                                                  key: UniqueKey(),
+                                                  controller: formController
+                                                          .generalController[
+                                                      getcontrollerIndexText(
+                                                          index)],
+                                                  onTap: () {
+                                                    print("this is index");
+                                                    print(index);
+                                                  },
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.isEmpty) {
+                                                      return 'Please enter ${vari[index].question}';
+                                                    }
+                                                    return null;
+                                                  },
+                                                  onChanged: (p0) {
+                                                    formController
+                                                            .ohterWholeList[
+                                                        index]["value"] = p0;
+                                                    print("editing");
+                                                    print(formController
+                                                        .ohterWholeList);
+                                                  },
+                                                )
+                                              : const SizedBox.shrink(),
+                                          vari[index].questionType == "3"
+                                              ? DropDownWidget(
+                                                  index: index,
+                                                  valueList: vari[index]
+                                                      .value
+                                                      .split('|')
+                                                    ..insert(0, "select item"),
+                                                  dropValue: widget.isEdit!
+                                                      ? formController
+                                                          .ohterWholeList[index]
+                                                              ["value"]
+                                                          .toString()
+                                                      // Get.arguments[0]
+                                                      //     [vari[index].question]
+                                                      : (vari[index]
+                                                              .value
+                                                              .split('|')
+                                                            ..insert(0,
+                                                                "select item"))
+                                                          .first,
+                                                  valueOnText:
+                                                      vari[index].question,
+                                                  isEdit: widget.isEdit,
+                                                  editableList: widget.isEdit!
+                                                      ? Get.arguments
+                                                      : [],
+                                                )
+                                              : const SizedBox.shrink(),
+                                          vari[index].questionType == "4"
+                                              ? MultiSelectValue(
+                                                  index: index,
+                                                  initialValue: widget.isEdit!
+                                                      ? formController
+                                                              .ohterWholeList[
+                                                          index]["value"]
+                                                      : "",
+                                                  listValue: vari[index]
+                                                      .value
+                                                      .split("|"),
+                                                  // selectedList: formController.multi,
+                                                  questionValue:
+                                                      vari[index].question,
+                                                  isEdit: widget.isEdit,
+                                                  editableList: widget.isEdit!
+                                                      ? Get.arguments
+                                                      : [],
+                                                )
+                                              : const SizedBox.shrink(),
+                                          vari[index].questionType == "5"
+                                              ? NoParameterImageWidget(
+                                                  index: index,
+                                                  isEdit: widget.isEdit,
+                                                  editableList: widget.isEdit!
+                                                      ? Get.arguments
+                                                      : [],
+                                                  base64String: widget.isEdit!
+                                                      ? formController
+                                                              .ohterWholeList[
+                                                          index]["value"]
+                                                      : "",
+                                                  questionName:
+                                                      vari[index].question,
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.isEmpty) {
+                                                      return 'Please enter ${vari[index].question}';
+                                                    }
+                                                    return null;
+                                                  })
+                                              : const SizedBox.shrink(),
+                                          vari[index].questionType == "6"
+                                              ? CustomDatePicker(
+                                                  index: index,
+                                                  isEdit: widget.isEdit,
+                                                  editableList: widget.isEdit!
+                                                      ? Get.arguments
+                                                      : [],
+                                                  value: widget.isEdit!
+                                                      ? formController
+                                                              .ohterWholeList[
+                                                          index]["value"]
+                                                      : "",
+                                                  questionValue:
+                                                      vari[index].question,
+                                                )
+                                              : const SizedBox.shrink(),
+                                          getheight(context, 0.010)
+                                        ],
+                                      );
+                                    }),
+                              ),
+                            )
+                          : SizedBox(
+                              // height: Get.height * (vari.length / 7.3),
+                              height: Get.height * 0.595,
+                              child: Form(
+                                key: _formKey,
+                                child: ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: const BouncingScrollPhysics(),
+                                    itemCount: variLocal.length,
+                                    itemBuilder: (context, index) {
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              SizedBox(
+                                                width: Get.width * 0.80,
+                                                child: CustomText(
+                                                    text: variLocal[index]
+                                                        ["question"]),
+                                              ),
+                                              variLocal[index]["mandatory"] ==
+                                                      "1"
+                                                  ? RichText(
+                                                      text: const TextSpan(
+                                                          text: ' *',
+                                                          style: TextStyle(
+                                                            color: Colors.red,
+                                                            fontSize: 15.0,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          )))
+                                                  : const SizedBox.shrink()
+                                            ],
+                                          ),
+                                          getheight(context, 0.010),
+                                          variLocal[index]["question_type"] ==
+                                                  "1"
+                                              ? CustomTextFormFieldWithController(
+                                                  key: UniqueKey(),
+                                                  controller: formController
+                                                          .generalController[
+                                                      getcontrollerIndexTextLocal(
+                                                          index)],
+                                                  onTap: () {
+                                                    print(formController
+                                                        .generalController[
+                                                            index]
+                                                        .text);
+                                                  },
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.isEmpty) {
+                                                      return 'Please enter ${variLocal[index]["question"]}';
+                                                    }
+                                                    return null;
+                                                  },
+                                                  onChanged: (p0) {
+                                                    formController
+                                                            .ohterWholeList[
+                                                        index]["value"] = p0;
+                                                    // if (p0.isNotEmpty) {
+                                                    //   Form.of(primaryFocus!
+                                                    //           .context!)
+                                                    //       .save();
+                                                    //   print(p0);
+                                                    //   if (widget.isEdit!) {
+                                                    //     formController
+                                                    //         .updateValue(
+                                                    //             Get.arguments,
+                                                    //             variLocal[index]
+                                                    //                 [
+                                                    //                 "question"],
+                                                    //             p0);
+                                                    //   } else {
+                                                    //     formController.addData(
+                                                    //         variLocal[index]
+                                                    //             ["question"],
+                                                    //         p0);
+                                                    //     formController
+                                                    //         .finalQuestionData(
+                                                    //             variLocal[index]
+                                                    //                 [
+                                                    //                 "question"],
+                                                    //             p0,
+                                                    //             'text');
+                                                    //   }
+                                                    // }
+                                                  })
+                                              : const SizedBox.shrink(),
+                                          variLocal[index]["question_type"] ==
+                                                  "2"
+                                              ? CustomTextFormFieldAddressWithController(
+                                                  key: UniqueKey(),
+                                                  controller: formController
+                                                          .generalController[
+                                                      getcontrollerIndexTextLocal(
+                                                          index)],
+                                                  onTap: () {
+                                                    print("this is index");
+                                                    print(index);
+                                                  },
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.isEmpty) {
+                                                      return 'Please enter ${variLocal[index]["question"]}';
+                                                    }
+                                                    return null;
+                                                  },
+                                                  onChanged: (p0) {
+                                                    formController
+                                                            .ohterWholeList[
+                                                        index]["value"] = p0;
+                                                    // if (p0.isNotEmpty) {
+                                                    //   widget.isEdit!
+                                                    //       ? formController
+                                                    //           .updateValue(
+                                                    //               Get.arguments,
+                                                    //               variLocal[
+                                                    //                       index]
+                                                    //                   [
+                                                    //                   "question"],
+                                                    //               p0)
+                                                    //       : formController
+                                                    //           .addData(
+                                                    //               variLocal[
+                                                    //                       index]
+                                                    //                   [
+                                                    //                   "question"],
+                                                    //               p0);
+                                                    // }
+                                                  },
+                                                )
+                                              : const SizedBox.shrink(),
+                                          variLocal[index]["question_type"] ==
+                                                  "3"
+                                              ? DropDownWidget(
+                                                  index: index,
+                                                  valueList: variLocal[index]
+                                                          ["_value"]
+                                                      .split('|')
+                                                    ..insert(0, "select item"),
+                                                  dropValue: widget.isEdit!
+                                                      ? formController
+                                                          .ohterWholeList[index]
+                                                              ["value"]
+                                                          .toString()
+                                                      : (variLocal[index]
+                                                                  ["_value"]
+                                                              .split('|')
+                                                            ..insert(0,
+                                                                "select item"))
+                                                          .first,
+                                                  valueOnText: variLocal[index]
+                                                      ["question"],
+                                                  isEdit: widget.isEdit,
+                                                  editableList: widget.isEdit!
+                                                      ? Get.arguments
+                                                      : [],
+                                                )
+                                              : const SizedBox.shrink(),
+                                          variLocal[index]["question_type"] ==
+                                                  "4"
+                                              ? MultiSelectValue(
+                                                  index: index,
+                                                  initialValue: widget.isEdit!
+                                                      ? formController
+                                                              .ohterWholeList[
+                                                          index]["value"]
+                                                      : "",
+                                                  listValue: variLocal[index]
+                                                          ["_value"]
+                                                      .split("|"),
+                                                  // selectedList: formController.multi,
+                                                  questionValue:
+                                                      variLocal[index]
+                                                          ["question"],
+                                                  isEdit: widget.isEdit,
+                                                  editableList: widget.isEdit!
+                                                      ? Get.arguments
+                                                      : [],
+                                                )
+                                              : const SizedBox.shrink(),
+                                          variLocal[index]["question_type"] ==
+                                                  "5"
+                                              ? NoParameterImageWidget(
+                                                  index: index,
+                                                  isEdit: widget.isEdit,
+                                                  editableList: widget.isEdit!
+                                                      ? Get.arguments
+                                                      : [],
+                                                  base64String: widget.isEdit!
+                                                      ? formController
+                                                              .ohterWholeList[
+                                                          index]["value"]
+                                                      : "",
+                                                  questionName: variLocal[index]
+                                                      ["question"],
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.isEmpty) {
+                                                      return 'Please enter ${variLocal[index]["question"]}';
+                                                    }
+                                                    return null;
+                                                  })
+                                              : const SizedBox.shrink(),
+                                          variLocal[index]["question_type"] ==
+                                                  "6"
+                                              ? CustomDatePicker(
+                                                  index: index,
+                                                  isEdit: widget.isEdit,
+                                                  editableList: widget.isEdit!
+                                                      ? Get.arguments
+                                                      : [],
+                                                  value: widget.isEdit!
+                                                      ? formController
+                                                              .ohterWholeList[
+                                                          index]["value"]
+                                                      : "",
+                                                  questionValue:
+                                                      variLocal[index]
+                                                          ["question"],
+                                                )
+                                              : const SizedBox.shrink(),
+                                          getheight(context, 0.010)
+                                        ],
+                                      );
+                                    }),
+                              ),
+                            ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CustomFloatingActionButton(
+                              icon: Icon(
+                                Icons.fast_rewind,
+                                color: appYellowColor,
+                              ),
+                              onPressed: () => Get.off(
+                                  () => BasicVoterRegistrationForm(
+                                        isEdit: widget.isEdit,
+                                      ),
+                                  // arguments: formController.index.value,
+                                  arguments: Get.arguments,
+                                  transition: Transition.noTransition)),
+                          !formController.isSubmitLoading.value
+                              ? CustomSelectedButton(
+                                  isSelected: true,
+                                  text: "Submit",
+                                  onPressed: () {
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                              title: Stack(
+                                                clipBehavior: Clip.none,
+                                                children: [
+                                                  const Text("Alert"),
+                                                  Positioned(
+                                                      top: -10,
+                                                      right: -10,
+                                                      child: InkWell(
+                                                        onTap: () {
+                                                          Get.back();
+                                                        },
+                                                        child: const Align(
+                                                          alignment:
+                                                              Alignment(1, -2),
+                                                          child: CircleAvatar(
+                                                              maxRadius: 20,
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .transparent,
+                                                              child: Icon(
+                                                                  Icons.cancel,
+                                                                  size: 30)),
+                                                        ),
+                                                      ))
+                                                ],
+                                              ),
+                                              content: SizedBox(
+                                                height: Get.height * 0.23,
+                                                width: Get.width * 0.20,
+                                                child: Column(
+                                                  children: [
+                                                    const Divider(),
+                                                    const CustomText(
+                                                        text:
+                                                            "Would you like to Save or Submit?"),
+                                                    getheight(context, 0.01),
+                                                    CustomSelectedButton(
+                                                      isSelected: true,
+                                                      text: "Save & Draft",
+                                                      onPressed: () async {
+                                                        // print(allData);
+                                                        // print(allData['name']);
 
-                    // getheight(context, 0.020),
-                    // const CustomTextFormField(
-                    //   labelText: "Language Prefrence",
-                    // ),
-                    // getheight(context, 0.020),
-                    // const CustomTextFormField(
-                    //   labelText: "How did you hear about us?",
-                    // ),
-                    // getheight(context, 0.020),
-                    // const CustomTextFormField(
-                    //   labelText: "Are you a resident of this state?",
-                    // ),
-                    // getheight(context, 0.020),
-                    // const CustomTextFormField(
-                    //   labelText: "Chronic Medical Conditions",
-                    // ),
-                    // getheight(context, 0.020),
-                    // const CustomTextFormField(
-                    //   labelText: "Name of Emergency Contact",
-                    // ),
-                    // getheight(context, 0.020),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        CustomButton(
-                            text: "Submit",
-                            onPressed: () {
-                              Get.defaultDialog(
-                                  // title: "Would you like to Save or Submit?",
-                                  // textConfirm: "Save & Draft",
-                                  // textCancel: "Submit",
-                                  middleText:
-                                      "Would you like to Save or Submit?",
-                                  middleTextStyle: GoogleFonts.poppins(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  actions: [
-                                    CustomButton(
-                                      text: "Save & Draft",
-                                      onPressed: () {
-                                        formController.storeDataLocally(
-                                            formController.allData, true);
-                                      },
-                                    ),
-                                    CustomButton(
-                                        text: "Submit",
-                                        onPressed: () {
-                                          formController.loadStoredData();
-                                          print("this is value of data");
-                                          print(formController
-                                              .localDataList.length);
-                                          // Accessing and using the localDataList
-                                          formController.localDataList
-                                              .forEach((localDataModel) {
-                                            final data = localDataModel.data;
-                                            final shouldDeleteAfterUpload =
-                                                localDataModel
-                                                    .shouldDeleteAfterUpload;
-
-                                            // Now, you can work with 'data' and 'shouldDeleteAfterUpload' as needed
-                                            print('Data: $data');
-                                            print(
-                                                'Should Delete: $shouldDeleteAfterUpload');
-                                          });
-
-// You can also access specific items in the list by index if needed
-                                          if (formController
-                                              .localDataList.isNotEmpty) {
-                                            final firstItem =
-                                                formController.localDataList[0];
-                                            final dataOfFirstItem =
-                                                firstItem.data;
-                                            final shouldDeleteOfFirstItem =
-                                                firstItem
-                                                    .shouldDeleteAfterUpload;
-                                            print("data of local storage");
-                                            print(dataOfFirstItem);
-                                            print(shouldDeleteOfFirstItem);
-
-                                            // Now, you can work with the first item's 'data' and 'shouldDeleteAfterUpload' as needed
-                                          }
-
-                                          // print("before clear the data");
-                                          // print(formController.allData);
-                                          // print("after clear the data");
-                                          // formController.allData.clear();
-                                          // print(formController.allData);
-                                          // formController.allData
-                                          //     .forEach((i, value) {
-                                          //   print('index=$i, value=$value');
-                                          // });
-                                        })
-                                  ]);
-                            }),
-                      ],
-                    ),
-                    getheight(context, 0.020),
-                  ],
-                )
-              ],
+                                                        // formController
+                                                        //     .deletOneLocalData(id);
+                                                        if (widget.isEdit!) {
+                                                          await LocalDatabaseHelper
+                                                              .getDB();
+                                                          await LocalDatabaseHelper.updateNote(
+                                                              DBDataModel(
+                                                                  firstName: formController
+                                                                      .firstFormController
+                                                                      .text,
+                                                                  middleName: formController
+                                                                      .middleFormController
+                                                                      .text,
+                                                                  surName: formController
+                                                                      .surFormController
+                                                                      .text,
+                                                                  phone: formController
+                                                                      .teleFormController
+                                                                      .text,
+                                                                  gender: formController
+                                                                      .genderValue
+                                                                      .value,
+                                                                  address: formController
+                                                                      .addressFormController
+                                                                      .text,
+                                                                  maritalStatus: formController
+                                                                      .maritualValue
+                                                                      .value,
+                                                                  dob: formController
+                                                                      .dobController
+                                                                      .text,
+                                                                  pollUnit: formController
+                                                                      .pollUnitController
+                                                                      .text,
+                                                                  isSubmit: 0,
+                                                                  wholelist: formController
+                                                                      .ohterWholeList
+                                                                      .toString(),
+                                                                  userid: sharedPref
+                                                                      .userID
+                                                                      .value,
+                                                                  formid: formController
+                                                                      .formID
+                                                                      .value,
+                                                                  subadminid: formController.subadminID.value),
+                                                              formController.formEditId.value);
+                                                          Get.off(() =>
+                                                              const DashboardPage());
+                                                          formController
+                                                              .firstFormController
+                                                              .clear();
+                                                          formController
+                                                              .middleFormController
+                                                              .clear();
+                                                          formController
+                                                              .surFormController
+                                                              .clear();
+                                                          formController
+                                                              .teleFormController
+                                                              .clear();
+                                                          formController
+                                                              .addressFormController
+                                                              .clear();
+                                                          formController
+                                                              .dobController
+                                                              .clear();
+                                                          formController
+                                                              .pollUnitController
+                                                              .clear();
+                                                          formController
+                                                              .generalController
+                                                              .clear();
+                                                          formController
+                                                              .ohterWholeList
+                                                              .clear();
+                                                          formController
+                                                              .editDrftList
+                                                              .clear();
+                                                        } else {
+                                                          await LocalDatabaseHelper
+                                                              .getDB();
+                                                          await LocalDatabaseHelper.addNote(DBDataModel(
+                                                              firstName: formController
+                                                                  .firstFormController
+                                                                  .text,
+                                                              middleName:
+                                                                  formController
+                                                                      .middleFormController
+                                                                      .text,
+                                                              surName: formController
+                                                                  .surFormController
+                                                                  .text,
+                                                              phone: formController
+                                                                  .teleFormController
+                                                                  .text,
+                                                              gender: formController
+                                                                  .genderValue
+                                                                  .value,
+                                                              address: formController
+                                                                  .addressFormController
+                                                                  .text,
+                                                              maritalStatus:
+                                                                  formController
+                                                                      .maritualValue
+                                                                      .value,
+                                                              dob: formController
+                                                                  .dobController
+                                                                  .text,
+                                                              pollUnit: formController
+                                                                  .pollUnitController
+                                                                  .text,
+                                                              isSubmit: 0,
+                                                              wholelist: formController.ohterWholeList.toString(),
+                                                              userid: sharedPref.userID.value,
+                                                              formid: formController.formID.value,
+                                                              subadminid: formController.subadminID.value));
+                                                          Get.off(() =>
+                                                              const DashboardPage());
+                                                          formController
+                                                              .firstFormController
+                                                              .clear();
+                                                          formController
+                                                              .middleFormController
+                                                              .clear();
+                                                          formController
+                                                              .surFormController
+                                                              .clear();
+                                                          formController
+                                                              .teleFormController
+                                                              .clear();
+                                                          formController
+                                                              .addressFormController
+                                                              .clear();
+                                                          formController
+                                                              .dobController
+                                                              .clear();
+                                                          formController
+                                                              .pollUnitController
+                                                              .clear();
+                                                          formController
+                                                              .generalController
+                                                              .clear();
+                                                          formController
+                                                              .ohterWholeList
+                                                              .clear();
+                                                          formController
+                                                              .editDrftList
+                                                              .clear();
+                                                        }
+                                                      },
+                                                    ),
+                                                    getheight(context, 0.02),
+                                                    CustomSelectedButton(
+                                                        isSelected: true,
+                                                        text: "Submit",
+                                                        onPressed: () async {
+                                                          if (widget.isEdit!) {
+                                                            if (networkController
+                                                                .isInternet
+                                                                .value) {
+                                                              //call the api
+                                                              await formController.formSubmit(
+                                                                  id.toString(),
+                                                                  formController
+                                                                      .ohterWholeList,
+                                                                  formController
+                                                                      .formID
+                                                                      .value,
+                                                                  formController
+                                                                      .subadminID
+                                                                      .value,
+                                                                  widget
+                                                                      .isEdit!);
+                                                            } else {
+                                                              //local save with isSubmit status 1(update run)
+                                                              await LocalDatabaseHelper
+                                                                  .getDB();
+                                                              await LocalDatabaseHelper.updateNote(
+                                                                  DBDataModel(
+                                                                      firstName: formController
+                                                                          .firstFormController
+                                                                          .text,
+                                                                      middleName: formController
+                                                                          .middleFormController
+                                                                          .text,
+                                                                      surName: formController
+                                                                          .surFormController
+                                                                          .text,
+                                                                      phone: formController
+                                                                          .teleFormController
+                                                                          .text,
+                                                                      gender: formController
+                                                                          .genderValue
+                                                                          .value,
+                                                                      address: formController
+                                                                          .addressFormController
+                                                                          .text,
+                                                                      maritalStatus: formController
+                                                                          .maritualValue
+                                                                          .value,
+                                                                      dob: formController
+                                                                          .dobController
+                                                                          .text,
+                                                                      pollUnit: formController
+                                                                          .pollUnitController
+                                                                          .text,
+                                                                      isSubmit:
+                                                                          1,
+                                                                      wholelist: formController
+                                                                          .ohterWholeList
+                                                                          .toString(),
+                                                                      userid: sharedPref
+                                                                          .userID
+                                                                          .value,
+                                                                      formid: formController
+                                                                          .formID
+                                                                          .value,
+                                                                      subadminid: formController
+                                                                          .subadminID
+                                                                          .value),
+                                                                  formController
+                                                                      .formEditId
+                                                                      .value);
+                                                              await LocalDatabaseHelper
+                                                                  .getSubmitteddNote(
+                                                                      sharedPref
+                                                                          .userID
+                                                                          .value);
+                                                              Get.off(() =>
+                                                                  const DashboardPage());
+                                                              formController
+                                                                  .firstFormController
+                                                                  .clear();
+                                                              formController
+                                                                  .middleFormController
+                                                                  .clear();
+                                                              formController
+                                                                  .surFormController
+                                                                  .clear();
+                                                              formController
+                                                                  .teleFormController
+                                                                  .clear();
+                                                              formController
+                                                                  .addressFormController
+                                                                  .clear();
+                                                              formController
+                                                                  .dobController
+                                                                  .clear();
+                                                              formController
+                                                                  .pollUnitController
+                                                                  .clear();
+                                                              formController
+                                                                  .generalController
+                                                                  .clear();
+                                                              formController
+                                                                  .ohterWholeList
+                                                                  .clear();
+                                                              formController
+                                                                  .editDrftList
+                                                                  .clear();
+                                                            }
+                                                          } else {
+                                                            if (networkController
+                                                                .isInternet
+                                                                .value) {
+                                                              Get.back();
+                                                              await formController.formSubmit(
+                                                                  id.toString(),
+                                                                  formController
+                                                                      .ohterWholeList,
+                                                                  formController
+                                                                      .formID
+                                                                      .value,
+                                                                  formController
+                                                                      .subadminID
+                                                                      .value,
+                                                                  widget
+                                                                      .isEdit!);
+                                                              //call the api
+                                                            } else {
+                                                              //local save with isSubmit status 1 (add run)
+                                                              await LocalDatabaseHelper
+                                                                  .getDB();
+                                                              await LocalDatabaseHelper.addNote(DBDataModel(
+                                                                  firstName: formController
+                                                                      .firstFormController
+                                                                      .text,
+                                                                  middleName:
+                                                                      formController
+                                                                          .middleFormController
+                                                                          .text,
+                                                                  surName: formController
+                                                                      .surFormController
+                                                                      .text,
+                                                                  phone: formController
+                                                                      .teleFormController
+                                                                      .text,
+                                                                  gender: formController
+                                                                      .genderValue
+                                                                      .value,
+                                                                  address: formController
+                                                                      .addressFormController
+                                                                      .text,
+                                                                  maritalStatus:
+                                                                      formController
+                                                                          .maritualValue
+                                                                          .value,
+                                                                  dob: formController
+                                                                      .dobController
+                                                                      .text,
+                                                                  pollUnit: formController
+                                                                      .pollUnitController
+                                                                      .text,
+                                                                  isSubmit: 1,
+                                                                  wholelist: formController
+                                                                      .ohterWholeList
+                                                                      .toString(),
+                                                                  userid: sharedPref.userID.value,
+                                                                  formid: formController.formID.value,
+                                                                  subadminid: formController.subadminID.value));
+                                                              await LocalDatabaseHelper
+                                                                  .getSubmitteddNote(
+                                                                      sharedPref
+                                                                          .userID
+                                                                          .value);
+                                                              Get.off(() =>
+                                                                  const DashboardPage());
+                                                              formController
+                                                                  .firstFormController
+                                                                  .clear();
+                                                              formController
+                                                                  .middleFormController
+                                                                  .clear();
+                                                              formController
+                                                                  .surFormController
+                                                                  .clear();
+                                                              formController
+                                                                  .teleFormController
+                                                                  .clear();
+                                                              formController
+                                                                  .addressFormController
+                                                                  .clear();
+                                                              formController
+                                                                  .dobController
+                                                                  .clear();
+                                                              formController
+                                                                  .pollUnitController
+                                                                  .clear();
+                                                              formController
+                                                                  .generalController
+                                                                  .clear();
+                                                              formController
+                                                                  .ohterWholeList
+                                                                  .clear();
+                                                              formController
+                                                                  .editDrftList
+                                                                  .clear();
+                                                            }
+                                                          }
+                                                        })
+                                                  ],
+                                                ),
+                                              ));
+                                        });
+                                  })
+                              : const CustomLoading(),
+                        ],
+                      ),
+                      getheight(context, 0.026),
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
         ),

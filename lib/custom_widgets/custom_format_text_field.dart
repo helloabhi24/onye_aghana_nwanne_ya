@@ -89,17 +89,17 @@ class PhoneNumberFormatterr extends TextInputFormatter {
         text: '$text-',
         selection: TextSelection.collapsed(offset: 5),
       );
-    } else if (text.length > 4 && text.length < 11) {
+    } else if (text.length > 4 && text.length < 10) {
       // Ensure there's a '-' after every two digits.
       return TextEditingValue(
         text: '${text.substring(0, 4)}-${text.substring(4)}',
         selection: TextSelection.collapsed(offset: text.length + 1),
       );
-    } else if (text.length >= 11) {
+    } else if (text.length >= 10) {
       // Limit the input to '04-xx-xx-xxx'.
       return TextEditingValue(
-        text: text.substring(0, 11),
-        selection: TextSelection.collapsed(offset: 11),
+        text: text.substring(0, 10),
+        selection: TextSelection.collapsed(offset: 10),
       );
     }
 

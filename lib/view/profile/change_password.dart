@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:onye_aghana_nwanne_ya/contoller/network_connectivity.dart';
 import 'package:onye_aghana_nwanne_ya/contoller/sign_up_controller.dart';
 import 'package:onye_aghana_nwanne_ya/custom_widgets/custom_button.dart';
+import 'package:onye_aghana_nwanne_ya/custom_widgets/custom_syn_button.dart';
 import 'package:onye_aghana_nwanne_ya/custom_widgets/custom_text_form_field.dart';
 import 'package:onye_aghana_nwanne_ya/custom_widgets/custom_text_widget.dart';
 import 'package:onye_aghana_nwanne_ya/custom_widgets/custome_pop_down.dart';
-import 'package:onye_aghana_nwanne_ya/custom_widgets/image_selected_widget.dart';
-import 'package:onye_aghana_nwanne_ya/utils/colors.dart';
 import 'package:onye_aghana_nwanne_ya/utils/const/string_const.dart';
 import 'package:onye_aghana_nwanne_ya/utils/loading_indicator.dart';
 import 'package:onye_aghana_nwanne_ya/utils/size_helper.dart';
@@ -26,30 +24,8 @@ class ChangePassword extends StatelessWidget {
 
     return Obx(
       () => Scaffold(
-        appBar: AppBarWidget(
-          actions: [
-            TextButton(
-                onPressed: () {},
-                child: Icon(
-                  Icons.sync_outlined,
-                  color: appColor,
-                )),
-            const CustomPopDown()
-          ],
-          // actions: [
-          //   TextButton(
-          //       onPressed: () {},
-          //       child: Icon(
-          //         Icons.sync_outlined,
-          //         color: appColor,
-          //       )),
-          //   TextButton(
-          //       onPressed: () => Get.to(() => const ProfilePage()),
-          //       child: Icon(
-          //         Icons.person,
-          //         color: appColor,
-          //       )),
-          // ],
+        appBar: const AppBarWidget(
+          actions: [CustomSyncButton(), CustomPopDown()],
         ),
         body: Center(
           child: Padding(

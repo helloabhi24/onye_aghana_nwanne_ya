@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:onye_aghana_nwanne_ya/contoller/form_controller.dart';
 import 'package:onye_aghana_nwanne_ya/contoller/shared_prefrence_controller.dart';
-import 'package:onye_aghana_nwanne_ya/contoller/sign_up_controller.dart';
 import 'package:onye_aghana_nwanne_ya/custom_widgets/custom_function.dart';
 import 'package:onye_aghana_nwanne_ya/custom_widgets/custom_text_widget.dart';
 import 'package:onye_aghana_nwanne_ya/utils/colors.dart';
@@ -18,13 +16,11 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SharedPref sharedPref = Get.put(SharedPref());
-    // SignUpController signUpController = Get.put(SignUpController());
     FormController formController = Get.find();
     return Scaffold(
       appBar: AppBarWidget(
         actions: [
           TextButton(
-              // onPressed: () => SystemNavigator.pop(),
               onPressed: () =>
                   CustomFunction().logOutFunction(context, sharedPref),
               child: Icon(
@@ -61,12 +57,10 @@ class HomePage extends StatelessWidget {
                       onPressed: () async {
                         await sharedPref.getuserImage();
                         await sharedPref.getuserId();
+                        await formController.loadStoredData();
+                        await formController.loadSubmitStoredData();
                         Get.offAll(() => const DashboardPage(),
                             transition: Transition.circularReveal);
-
-                        // await sharedPref.getuserId();
-                        // await formController.forms(
-                        //     sharedPref.userID.value, false);
                       },
                     ),
                   ],

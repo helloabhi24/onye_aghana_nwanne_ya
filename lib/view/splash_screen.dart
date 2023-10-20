@@ -25,14 +25,8 @@ class _SplashScreenState extends State<SplashScreen> {
           () => sharedPref.userID.isEmpty
               ? const SingInPage()
               : const DashboardPage(),
-          transition: Transition.downToUp);
-      // print("hello");
-      // Navigator.pushReplacement(
-      //     context,
-      //     MaterialPageRoute(
-      //       builder: (context) => SignInWidget(),
-      //     ));
-      // print("hello99");
+          transition: Transition.noTransition);
+      
     });
   }
 
@@ -55,15 +49,9 @@ class _SplashScreenState extends State<SplashScreen> {
             const CustomBoldText(text: "Welcome"),
           ],
         )
-            //  Image(
-            //   image: const AssetImage('assets/images/logo.jpg'),
-            //   width: Get.width * 0.50,
-            // ),
+            
             )
-        //  Image.asset(
-        //   'assets/images/logo.png',
-        //   width: Get.width * 0.50,
-        // ),
+       
         );
   }
 }

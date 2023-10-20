@@ -111,20 +111,6 @@ class ConfirmPasswordPage extends StatelessWidget {
                       ? CustomButton(
                           text: "Done",
                           onPressed: () async {
-                            // if (signUpController
-                            //     .passwordController.text.isEmpty) {
-                            //   customToast("Please Provide Password");
-                            // } else if (signUpController
-                            //     .passwordConfirmController.text.isEmpty) {
-                            //   customToast("Please Provide Password again");
-                            // } else if (signUpController
-                            //         .passwordController.text !=
-                            //     signUpController
-                            //         .passwordConfirmController.text) {
-                            //   customToast("Password is not matched");
-                            // } else {
-                            //   await signUpController.registrationFinal();
-                            // }
                             if (signUpController.passwordController.text !=
                                 signUpController
                                     .passwordConfirmController.text) {

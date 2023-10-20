@@ -8,6 +8,8 @@ class ServiceConstant {
   static const String registration = "user/registration";
   //3. Otp Resend
   static const String resendOtp = "user/resendotp";
+  //4. forgetOtp
+  static const String forgetOtp = "user/forgetotp";
   //4. User Edit
   static const String userEdit = "user/edit";
   //5. User Update
@@ -20,4 +22,8 @@ class ServiceConstant {
   static const String userUpdatePassword = "user/password/update";
   //9. Forms
   static const String forms = "forms";
+  //10. Forms
+  static const String save = "voters/save";
+  //11. GetFormData
+  static const String getFormData = "voters/getdata";
 }

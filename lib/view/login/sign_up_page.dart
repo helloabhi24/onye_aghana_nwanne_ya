@@ -11,6 +11,7 @@ import 'package:onye_aghana_nwanne_ya/utils/const/string_const.dart';
 import 'package:onye_aghana_nwanne_ya/utils/loading_indicator.dart';
 import 'package:onye_aghana_nwanne_ya/utils/size_helper.dart';
 import 'package:onye_aghana_nwanne_ya/utils/toast.dart';
+import 'package:onye_aghana_nwanne_ya/view/login/privcy_policy_page.dart';
 import 'package:onye_aghana_nwanne_ya/view/login/sign_in_page.dart';
 import 'package:onye_aghana_nwanne_ya/view/login/term_and_condition.dart';
 import '../../custom_widgets/app_bar_widget.dart';
@@ -77,24 +78,20 @@ class SingUpPage extends StatelessWidget {
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return EMPTY_MOBILE_NUMBER;
-                        } else if (value.length < 11) {
+                        } else if (value.length < 10) {
                           return VALID_MOBILE_NUMBER;
                         }
                         return null;
                       },
                       textInputType: TextInputType.number,
                       formatter: [
-                        LengthLimitingTextInputFormatter(11),
+                        LengthLimitingTextInputFormatter(10),
+                        FilteringTextInputFormatter.deny(RegExp('^0+'))
                       ],
                       labelText: "Mobile Number",
                       controller: signUpController.telephoneNumberController,
                     ),
                     getheight(context, 0.020),
-
-                    // const CustomTextFormField(
-                    //   labelText: "Upload Photo (Optional)",
-                    // ),
-                    // getheight(context, 0.020),
                     CustomTextFormField(
                       onChanged: (p0) =>
                           signUpController.isLoading.value = false,
@@ -104,22 +101,6 @@ class SingUpPage extends StatelessWidget {
                         }
                         return null;
                       },
-                      // icon: GestureDetector(
-                      //   onTap: () {
-                      //     signUpController.isPwdShow.value =
-                      //         !signUpController.isPwdShow.value;
-                      //   },
-                      //   child: signUpController.isPwdShow.value
-                      //       ? const Icon(
-                      //           Icons.no_encryption_gmailerrorred_outlined,
-                      //           size: 20,
-                      //         )
-                      //       : const Icon(
-                      //           Icons.remove_red_eye,
-                      //           size: 20,
-                      //         ),
-                      // ),
-                      // isHidden: signUpController.isPwdShow.value,
                       labelText: "Sub Admin Password",
                       controller: signUpController.specialPasswordController,
                     ),
@@ -136,6 +117,7 @@ class SingUpPage extends StatelessWidget {
                                 .getImageforSignUp(ImageSource.gallery),
                           )
                         : WithOutImageWidget(
+                            isAnyImage: false,
                             onChangedCamera: () => signUpController
                                 .getImageforSignUp(ImageSource.camera),
                             onChangedGallery: () => signUpController
@@ -144,25 +126,56 @@ class SingUpPage extends StatelessWidget {
                     getheight(context, 0.020),
                     Wrap(
                       children: [
-                        const CustomText(
-                            text: "By singing up, you agree to our "),
-                        GestureDetector(
-                          onTap: () =>
-                              Get.to(() => const TermAndConditionPage()),
-                          child: CustomText(
-                            text: "Terms and Conditions",
-                            color: blueColor,
-                          ),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: signUpController.isChecked.value,
+                              onChanged: (value) async {
+                                signUpController.isChecked.value = value!;
+                              },
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const CustomText(
+                                    text: "By signing up, you agree to our "),
+                                Row(
+                                  children: [
+                                    InkWell(
+                                      onTap: () => Get.to(
+                                          () => const TermAndConditionPage()),
+                                      child: CustomText(
+                                        text: "Terms and Conditions",
+                                        color: blueColor,
+                                      ),
+                                    ),
+                                    const CustomText(text: " & "),
+                                    InkWell(
+                                      onTap: () => Get.to(
+                                          () => const PrivcyPolicyPage()),
+                                      child: CustomText(
+                                        text: "Privacy Policy",
+                                        color: blueColor,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                Visibility(
+                                  visible: !signUpController.isChecked.value,
+                                  child: Column(
+                                    children: [
+                                      // getheight(context, 0.001),
+                                      CustomText(
+                                        text: "Please Check on Box for Proceed",
+                                        color: redColor,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                        const CustomText(text: " & "),
-                        GestureDetector(
-                          onTap: () =>
-                              Get.to(() => const TermAndConditionPage()),
-                          child: CustomText(
-                            text: "Privacy Policy",
-                            color: blueColor,
-                          ),
-                        )
                       ],
                     ),
                     getheight(context, 0.020),
@@ -170,44 +183,16 @@ class SingUpPage extends StatelessWidget {
                         ? CustomButton(
                             text: "Submit",
                             onPressed: () async {
-                              // if (signUpController
-                              //     .firstNameController.text.isEmpty) {
-                              //   customToast("Please Provide First Name");
-                              // } else if (signUpController
-                              //         .firstNameController.text.length <
-                              //     3) {
-                              //   customToast(
-                              //       "Please Provide at Least 3 Character at First Name");
-                              // } else if (signUpController
-                              //         .surNameController.text.length <
-                              //     3) {
-                              //   customToast(
-                              //       "Please Provide at Least 3 Character at Sur Name");
-                              // } else if (signUpController
-                              //     .surNameController.text.isEmpty) {
-                              //   customToast("Please Provide Sur Name");
-                              // } else if (signUpController
-                              //     .telephoneNumberController.text.isEmpty) {
-                              //   customToast("Please Provide Mobile Number");
-                              // } else if (signUpController
-                              //     .specialPasswordController.text.isEmpty) {
-                              //   customToast("Please Provide Password");
-                              // } else {
-                              //   await signUpController
-                              //       .checkValidationOnSignUp();
-                              // }
-
                               if (formKey.currentState!.validate()) {
                                 if (networkController.isInternet.value) {
-                                  await signUpController
-                                      .checkValidationOnSignUp();
+                                  if (signUpController.isChecked.value) {
+                                    await signUpController
+                                        .checkValidationOnSignUp();
+                                  }
                                 } else {
                                   customToast("Please Connect Internet");
                                 }
                               }
-
-                              // Get.to(() => const VerificationPage(),
-                              // transition: Transition.circularReveal);
                             },
                           )
                         : const CustomLoading(),

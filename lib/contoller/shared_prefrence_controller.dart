@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -47,6 +46,7 @@ class SharedPref extends GetxController {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     prefs.remove("UserId");
+    prefs.remove("UserImage");
   }
 
   @override

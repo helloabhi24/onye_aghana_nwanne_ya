@@ -9,7 +9,6 @@ import 'package:onye_aghana_nwanne_ya/utils/const/string_const.dart';
 import 'package:onye_aghana_nwanne_ya/utils/loading_indicator.dart';
 import 'package:onye_aghana_nwanne_ya/utils/size_helper.dart';
 import 'package:onye_aghana_nwanne_ya/utils/toast.dart';
-import 'package:onye_aghana_nwanne_ya/view/home_page.dart';
 import 'package:onye_aghana_nwanne_ya/view/login/forget_password_page.dart';
 import 'package:onye_aghana_nwanne_ya/view/login/sign_up_page.dart';
 import '../../custom_widgets/app_bar_widget.dart';
@@ -28,7 +27,6 @@ class SingInPage extends StatelessWidget {
     return Obx(
       () => Scaffold(
         resizeToAvoidBottomInset: false,
-        // backgroundColor: lightAmber.withOpacity(0.1),
         appBar: const AppBarWidget(),
         body: Center(
           child: Padding(
@@ -46,14 +44,15 @@ class SingInPage extends StatelessWidget {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return EMPTY_MOBILE_NUMBER;
-                      } else if (value.length < 11) {
+                      } else if (value.length < 10) {
                         return VALID_MOBILE_NUMBER;
                       }
                       return null;
                     },
                     textInputType: TextInputType.number,
                     formatter: [
-                      LengthLimitingTextInputFormatter(11),
+                      LengthLimitingTextInputFormatter(10),
+                      FilteringTextInputFormatter.deny(RegExp('^0+'))
                     ],
                     controller: signUpController.loginPhoneController,
                     labelText: "Mobile Number",
@@ -92,7 +91,10 @@ class SingInPage extends StatelessWidget {
                     children: [
                       const CustomText(text: ""),
                       GestureDetector(
-                          onTap: () => Get.to(() => const ForgetPasswordPage()),
+                          onTap: () {
+                            signUpController.isSign.value = false;
+                            Get.to(() => const ForgetPasswordPage());
+                          },
                           child: const CustomText(text: "Forget Password? ")),
                     ],
                   ),
@@ -101,23 +103,10 @@ class SingInPage extends StatelessWidget {
                       ? CustomButton(
                           text: "Submit",
                           onPressed: () async {
-                            // if (signUpController
-                            //     .loginPhoneController.text.isEmpty) {
-                            //   customToast("Please Provide Mobile Number");
-                            // } else if (signUpController
-                            //     .loginPasswordController.text.isEmpty) {
-                            //   customToast("Please Provide Password");
-                            // } else {
-                            //   await signUpController.loginToDash();
-                            //   // Get.to(() => const DashboardPage());
-                            // }
-
+                            FocusManager.instance.primaryFocus?.unfocus();
                             if (formKey.currentState!.validate()) {
                               if (networkController.isInternet.value) {
                                 await signUpController.loginToDash();
-                                signUpController.loginPhoneController.clear();
-                                signUpController.loginPasswordController
-                                    .clear();
                               } else {
                                 customToast("Please Connect Internet");
                               }
@@ -132,8 +121,11 @@ class SingInPage extends StatelessWidget {
                       const CustomText(text: "Don't have an account?"),
                       // getwidth(context, 0.05),
                       GestureDetector(
-                          onTap: () => Get.off(() => const SingUpPage(),
-                              transition: Transition.circularReveal),
+                          onTap: () {
+                            signUpController.isSign.value = true;
+                            Get.off(() => const SingUpPage(),
+                                transition: Transition.circularReveal);
+                          },
                           child: CustomText(
                             text: " Sign Up",
                             color: blueColor,
